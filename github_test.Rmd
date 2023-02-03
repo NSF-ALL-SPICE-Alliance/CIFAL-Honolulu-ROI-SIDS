@@ -1,0 +1,15 @@
+---
+title: "github test"
+author: "Andrew Nishitomi & Connor Flynn"
+date: "2/2/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+four <- 2 + 2
+```
+
