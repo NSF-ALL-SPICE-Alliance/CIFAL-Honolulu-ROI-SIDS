@@ -1,0 +1,17 @@
+---
+title: "case_study"
+author: "Connor Flynn"
+date: "2/10/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+```
+
+```{r}
+sids_budgets <- read_csv(here("data/All_SIDS_Budgets.csv"))
+```
+
