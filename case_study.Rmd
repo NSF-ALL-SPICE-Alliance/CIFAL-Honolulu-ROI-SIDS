@@ -9,9 +9,53 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
+library(janitor)
+
 ```
 
 ```{r}
-sids_budgets <- read_csv(here("data/All_SIDS_Budgets.csv"))
+sids_budgets <- read_csv(here("data/sids_app_portfolio_projects.csv"))
+```
+
+```{r}
+sids_budgets <- sids_budgets %>% 
+  clean_names()
+```
+
+
+```{r}
+sids_budgets_by_country <- sids_budgets %>% 
+  drop_na() %>% 
+  group_by(country) %>% 
+  summarise(total_budgets = sum(budget_usd))
+```
+
+
+```{r}
+sids_expenses_by_country <- sids_budgets %>% 
+  drop_na() %>% 
+  group_by(country) %>% 
+  summarise(total_expenses = sum(expense_usd))
+```
+
+
+
+
+```{r}
+sdg1 <- sids_budgets %>% 
+  filter(sd_gs == "Goal 1 - No Poverty")
+```
+
+
+```{r}
+ sdg_combos <- data.frame(table(sids_budgets$sd_gs))
+```
+
+
+```{r}
+sdg_funding <- sids_budgets %>% 
+  drop_na() %>% 
+  group_by(sd_gs) %>% 
+  summarise(total_buget = sum(budget_usd))
 ```
 
