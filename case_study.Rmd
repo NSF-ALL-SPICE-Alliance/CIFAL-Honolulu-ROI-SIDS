@@ -40,15 +40,13 @@ sids_expenses_by_country <- sids_budgets %>%
 
 
 
-
 ```{r}
-sdg1 <- sids_budgets %>% 
-  filter(sd_gs == "Goal 1 - No Poverty")
-```
+ sdg_combos <- as.data.frame(table(sids_budgets$sd_gs))
 
 
-```{r}
- sdg_combos <- data.frame(table(sids_budgets$sd_gs))
+# Syntax rename with condition
+colnames(sdg_combos)[colnames(sdg_combos) == "Var1"] ="sd_gs"
+
 ```
 
 
@@ -58,4 +56,12 @@ sdg_funding <- sids_budgets %>%
   group_by(sd_gs) %>% 
   summarise(total_buget = sum(budget_usd))
 ```
+
+
+
+
+```{r}
+sdg_combos_funding <- full_join(sdg_combos, sdg_funding, by = "sd_gs")
+```
+
 
