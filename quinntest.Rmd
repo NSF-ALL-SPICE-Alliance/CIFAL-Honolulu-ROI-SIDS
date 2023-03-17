@@ -62,5 +62,12 @@ sdg_funding <- sids_budgets %>%
 sdg_combos_funding <- full_join(sdg_combos, sdg_funding, by = "sd_gs")
 ```
 
+Small Assignment 
+
+Make a barplot with sids_budget_by_country with country as the bar and total_budgets as the length of the bar - use ggplot hint "stat = "
+
+
+
+
 
 
