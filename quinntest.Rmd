@@ -8,7 +8,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
 library(janitor)
-
+library(ggplot2)
+options(scipen=99)
 ```
 
 ```{r}
@@ -67,6 +68,12 @@ Small Assignment
 Make a barplot with sids_budget_by_country with country as the bar and total_budgets as the length of the bar - use ggplot hint "stat = "
 
 
+```{r}
+ggplot(data=sids_budgets_by_country, aes(x=country,
+                                           y=total_budgets)) +
+  geom_bar(stat='identity')
+
+```
 
 
 
