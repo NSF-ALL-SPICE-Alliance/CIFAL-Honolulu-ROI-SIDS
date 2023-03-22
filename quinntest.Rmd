@@ -76,5 +76,12 @@ ggplot(data=sids_budgets_by_country, aes(x=country,
 ```
 
 
+```{r}
+ggplot(data=sids_budgets_by_country, aes(x=total_budgets,
+                                           y= reorder(country, total_budgets))) +
+  geom_bar(stat='identity', fill = "steelblue") +
+  theme_minimal() +
+  labs(title = "SIDS Budgets", x = "Budget $U.S", y = "Country")
+```
 
 
