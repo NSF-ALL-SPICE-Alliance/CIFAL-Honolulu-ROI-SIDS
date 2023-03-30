@@ -84,4 +84,11 @@ ggplot(data=sids_budgets_by_country, aes(x=total_budgets,
   labs(title = "SIDS Budgets", x = "Budget $U.S", y = "Country")
 ```
 
-
+```{r}
+ggplot(data=sids_expenses_by_country, aes(x=total_expenses,
+                                           y=reorder(country, total_expenses))) +
+    geom_bar(stat='identity', fill='red') +
+    theme_minimal() +
+    labs(title='SIDS Expenses by Country', x='Expenses $US', y='Country')
+```
+How do I code a graph that has countries on the x-axis with bars that show, for example, expenses in red and budgets in blue on the SAME bar, so that we can visualize how much of the budget wa actually spent? Basically how do I tell it to use two columns from different data tables
