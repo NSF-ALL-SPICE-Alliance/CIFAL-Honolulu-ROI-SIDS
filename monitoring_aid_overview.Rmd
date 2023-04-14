@@ -10,12 +10,20 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
 library(plotly)
+library(readxl)
 options(scipen = 99)
 ```
 
 ```{r}
 activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
 ```
+
+```{r}
+descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
+```
+
+
+
 
 ```{r}
 activity_clusters <- activity_clusters %>% 
