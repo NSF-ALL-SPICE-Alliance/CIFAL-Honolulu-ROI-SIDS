@@ -1,0 +1,87 @@
+---
+title: "monitoring aid analysis"
+author: "Connor"
+date: "4/11/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(plotly)
+options(scipen = 99)
+```
+
+```{r}
+activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
+```
+
+```{r}
+activity_clusters <- activity_clusters %>% 
+  mutate(disbursement = USD_Disbursement * 1000000)
+```
+
+
+```{r}
+total_disbursments_by_country <- activity_clusters %>% 
+  group_by(RecipientName) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+```{r}
+total_disbursments_by_country_sector <-activity_clusters %>% 
+  group_by(RecipientName, Sector) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+```{r}
+unique(activity_clusters$RecipientName)
+```
+
+
+
+```{r}
+sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
+             'Cook Islands', 'Dominica', 'Dominican Republic', 'Fiji', 'Grenada', 'Guinea-Bissau', 'Guyana', 
+             'Haiti', 'Jamaica', 'Kiribati', 'Maldives', 'Marshall Islands', 'Mauritius', 'Micronesia', 
+             'Montserrat', 'Nauru', 'Niue', 'Palau', 'Papua New Guinea', 'Saint Kitts and Nevis', 'Saint Lucia', 
+             'Saint Vincent and the Grenadines', 'Samoa', 'Sao Tome and Principe', 'Seychelles', 'Solomon Islands', 
+             'Suriname', 'Timor-Leste', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Turks and Caicos Islands', 
+             'Tuvalu', 'Vanuatu')
+```
+
+
+```{r}
+activity_clusters_sids <- activity_clusters %>%
+  filter(RecipientName %in% sids)
+```
+
+```{r}
+unique(activity_clusters_sids$RecipientName)
+```
+```{r}
+total_disbursments_by_sids <- activity_clusters_sids %>% 
+  group_by(RecipientName) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+```{r}
+total_disbursments_by_sids_sector <- activity_clusters_sids %>% 
+  group_by(RecipientName, Sector) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+```{r}
+plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
+                                              y = reorder(RecipientName, disbursement),
+                                              fill = Sector)) +
+  geom_bar(stat = "identity") +
+  theme_minimal()
+```
+
+```{r}
+ggplotly(plot)
+```
+
