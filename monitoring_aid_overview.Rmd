@@ -23,6 +23,9 @@ activity_clusters <- activity_clusters %>%
 ```
 
 
+
+
+
 ```{r}
 total_disbursments_by_country <- activity_clusters %>% 
   group_by(RecipientName) %>% 
@@ -79,9 +82,41 @@ plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
                                               fill = Sector)) +
   geom_bar(stat = "identity") +
   theme_minimal()
+
+plot
 ```
 
 ```{r}
 ggplotly(plot)
 ```
+
+
+Percentages
+
+```{r}
+total_disbursments_by_sids_sector <- total_disbursments_by_sids_sector %>% 
+  group_by(RecipientName)  %>% 
+  mutate(percentage = disbursement/sum(disbursement))
+
+```
+
+```{r}
+tile_plot <- ggplot(total_disbursments_by_sids_sector, aes(x=Sector , y= RecipientName,
+                                              fill = percentage)) +
+  geom_tile() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, size = 4, hjust = 1),
+        axis.text.y = element_text(size = 3, hjust = 1)) +
+  scale_fill_gradient(low = "khaki", high = "red")
+  
+tile_plot
+
+```
+
+```{r}
+ggplotly(tile_plot)
+```
+
+
+
 
