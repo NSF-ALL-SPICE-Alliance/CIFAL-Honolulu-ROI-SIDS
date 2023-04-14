@@ -99,7 +99,7 @@ ggplotly(plot)
 ```
 
 
-Percentages
+Percentages SIDS
 
 ```{r}
 total_disbursments_by_sids_sector <- total_disbursments_by_sids_sector %>% 
@@ -125,6 +125,61 @@ tile_plot
 ggplotly(tile_plot)
 ```
 
+Percentages global
+
+```{r}
+total_disbursments_by_country_sector <- total_disbursments_by_country_sector %>% 
+  group_by(RecipientName)  %>% 
+  mutate(percentage = disbursement/sum(disbursement))
+```
+
+```{r}
+colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
+```
 
 
+
+```{r}
+activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
+```
+
+```{r}
+activity_stats_sids<-activity_stats_join %>%
+  filter(RecipientName %in% sids)
+```
+
+```{r}
+activity_stats_sids_clusters<- activity_stats_sids %>% 
+  group_by(Cluster, RecipientName, Topic, Sector) %>%
+  summarize(sum_disbursment_by_cluster=sum(disbursement))
+```
+
+
+```{r}
+activity_stats_sids <- activity_stats_sids %>% 
+  group_by(RecipientName)  %>% 
+  mutate(percentage = disbursement/sum(disbursement))
+```
+
+```{r}
+activity_stats_sids_clusters<-activity_stats_sids_clusters %>% 
+  group_by(RecipientName)  %>% 
+  mutate(percentage = sum_disbursment_by_cluster/sum(sum_disbursment_by_cluster))
+```
+
+```{r}
+activity_stats_sids <- activity_stats_sids %>% 
+  clean_names()
+```
+
+
+```{r}
+topic_sector<- activity_stats_sids %>% 
+  group_by(topic, sector) %>% 
+  summarize(percentage_disbursement_topic_by_sector = sum_disbursement/sum(sum_disbursement))
+```
+
+```{r}
+
+```
 
