@@ -1,0 +1,239 @@
+---
+title: "Analysis of the Results from 'Monitoring global development aid with machine learning'"
+author: "Connor Flynn, Quinn Mchenry, Katherine Gonzales"
+date: "5/5/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(plotly)
+library(readxl)
+library(janitor)
+library(sunburstR)
+options(scipen = 99)
+```
+
+
+![](/Users/connorflynn/Documents/SDG/SIDS_SDG_UNSTATS/visualizations/cifal_logo.png){width=150} 
+
+
+The data source of this work is the results from the paper [Monitoring global development aid with machine learning](https://www.nature.com/articles/s41893-022-00874-z) specifically sourced form their [Github](https://github.com/MalteToetzke/Monitoring-Global-Development-Aid-With-Machine-Learning/tree/main/Data)
+
+
+### Goal of this work
+
+Visualize **more granular descriptions of aid than the 17 SDG's** for Small Island Develping States (SIDS)
+
+  - How much aid is each SIDS receiving?:
+    - For which sectors? (31 total)
+    
+  - For SIDS as a whole, what proportion of the overall aid goes to each of the specific topics? (171 total)
+
+
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- activity_clusters %>% 
+  mutate(disbursement = USD_Disbursement * 1000000)
+```
+
+
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_country <- activity_clusters %>% 
+  group_by(RecipientName) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_country_sector <-activity_clusters %>% 
+  group_by(RecipientName, Sector) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+unique(activity_clusters$RecipientName)
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
+             'Cook Islands', 'Dominica', 'Dominican Republic', 'Fiji', 'Grenada', 'Guinea-Bissau', 'Guyana', 
+             'Haiti', 'Jamaica', 'Kiribati', 'Maldives', 'Marshall Islands', 'Mauritius', 'Micronesia', 
+             'Montserrat', 'Nauru', 'Niue', 'Palau', 'Papua New Guinea', 'Saint Kitts and Nevis', 'Saint Lucia', 
+             'Saint Vincent and the Grenadines', 'Samoa', 'Sao Tome and Principe', 'Seychelles', 'Solomon Islands', 
+             'Suriname', 'Timor-Leste', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Turks and Caicos Islands', 
+             'Tuvalu', 'Vanuatu')
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters_sids <- activity_clusters %>%
+  filter(RecipientName %in% sids)
+```
+
+Identify SIDS in datset (41)
+
+```{r, include=FALSE, results='hide'}
+unique(activity_clusters_sids$RecipientName)
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_sids <- activity_clusters_sids %>% 
+  group_by(RecipientName) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_sids_sector <- activity_clusters_sids %>% 
+  group_by(RecipientName, Sector) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
+                                              y = reorder(RecipientName, disbursement),
+                                              fill = Sector)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Aid by SIDS by Sector", y = "SIDS", x = "Aid in $USD") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, size = 4, hjust = 1))
+
+plot
+```
+
+
+```{r}
+ggplotly(plot)
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_sids_sector <- total_disbursments_by_sids_sector %>% 
+  group_by(RecipientName)  %>% 
+  mutate(percentage = disbursement/sum(disbursement))
+
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+tile_plot <- ggplot(total_disbursments_by_sids_sector, aes(x=Sector , y= RecipientName,
+                                              fill = percentage)) +
+  geom_tile() +
+  labs(title = "Percentage of Budget allocated to each Sector by SIDS", y = "SIDS", x = "Sector") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, size = 4, hjust = 1),
+        axis.text.y = element_text(size = 3, hjust = 1)) +
+  scale_fill_gradient(low = "khaki", high = "red")
+  
+tile_plot
+
+```
+
+
+
+```{r}
+ggplotly(tile_plot)
+```
+
+
+
+
+
+
+```{r, include=FALSE, results='hide'}
+colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids<-activity_stats_join %>%
+  filter(RecipientName %in% sids)
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids <- activity_stats_sids %>% 
+  clean_names()
+```
+
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst<- activity_stats_sids %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(sum_disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged <- topic_sector_sunburst %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged<- subset(topic_sector_sunburst_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
+```
+
+
+```{r}
+p <- sunburst(topic_sector_sunburst_merged, legend=FALSE)
+p
+```
+
+
