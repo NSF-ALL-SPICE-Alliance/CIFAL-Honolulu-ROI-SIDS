@@ -261,3 +261,42 @@ p <- sunburst(topic_sector_sunburst_merged, legend=FALSE)
 p
 ```
 
+
+
+
+
+
+Global 
+
+
+```{r}
+activity_stats_all <- activity_stats_join %>% 
+  clean_names()
+```
+
+
+
+```{r}
+activity_stats_all<- activity_stats_all %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(sum_disbursement))
+```
+
+
+
+```{r}
+topic_sector_sunburst_merged_all <- activity_stats_all %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r}
+topic_sector_sunburst_merged_all<- subset(topic_sector_sunburst_merged_all, select= -c(topic))
+```
+
+
+```{r}
+p <- sunburst(topic_sector_sunburst_merged_all, legend=FALSE)
+p
+```
