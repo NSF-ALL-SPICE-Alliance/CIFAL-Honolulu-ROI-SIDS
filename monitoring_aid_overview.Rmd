@@ -15,15 +15,34 @@ library(janitor)
 options(scipen = 99)
 ```
 
+
+Read in Data from 'Monitoring global development aid with machine learning'
+- Activity Clusters describes 
+  - Year
+  - Country
+  - Disbursement
+  - Sector
+  - Sum of Disbursement 
+
+
 ```{r}
 activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
 ```
+
+Read in Data from 'Monitoring global development aid with machine learning'
+  - Descriptive Stats describes
+    - Cluster #
+    - Topic
+    - Area (Believed to be the same as Sector listed above)
+    - Sum Disbursement
+    - Count Activities
+
 
 ```{r}
 descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
 ```
 
-
+Multiply disbursement by 1 million *needs checking
 
 
 ```{r}
@@ -32,7 +51,7 @@ activity_clusters <- activity_clusters %>%
 ```
 
 
-
+Group by country and sum the disbursement
 
 
 ```{r}
@@ -41,17 +60,22 @@ total_disbursments_by_country <- activity_clusters %>%
   summarise(disbursement = sum(disbursement))
 ```
 
+
+Group by country and sector and sum the disbursement
+
 ```{r}
 total_disbursments_by_country_sector <-activity_clusters %>% 
   group_by(RecipientName, Sector) %>% 
   summarise(disbursement = sum(disbursement))
 ```
 
+Identify all countries in the dataset (184)
+
 ```{r}
 unique(activity_clusters$RecipientName)
 ```
 
-
+Compile list of Small Island Developing States - SIDS 
 
 ```{r}
 sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
@@ -63,27 +87,37 @@ sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'C
              'Tuvalu', 'Vanuatu')
 ```
 
+Filter dataset for only SIDS
+
 
 ```{r}
 activity_clusters_sids <- activity_clusters %>%
   filter(RecipientName %in% sids)
 ```
 
+Identify SIDS in datset (41)
+
 ```{r}
 unique(activity_clusters_sids$RecipientName)
 ```
+
+Group by SIDS and sum disbursement
+
 ```{r}
 total_disbursments_by_sids <- activity_clusters_sids %>% 
   group_by(RecipientName) %>% 
   summarise(disbursement = sum(disbursement))
 ```
 
+Group by SIDS and sector and sum disbursement
 
 ```{r}
 total_disbursments_by_sids_sector <- activity_clusters_sids %>% 
   group_by(RecipientName, Sector) %>% 
   summarise(disbursement = sum(disbursement))
 ```
+
+Plot 
 
 ```{r}
 plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
@@ -94,13 +128,14 @@ plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
 
 plot
 ```
+Plot Interactively
 
 ```{r}
 ggplotly(plot)
 ```
 
 
-Percentages SIDS
+Calculate what percentage of each SIDS budget goes to each sector
 
 ```{r}
 total_disbursments_by_sids_sector <- total_disbursments_by_sids_sector %>% 
@@ -108,6 +143,8 @@ total_disbursments_by_sids_sector <- total_disbursments_by_sids_sector %>%
   mutate(percentage = disbursement/sum(disbursement))
 
 ```
+
+Plot
 
 ```{r}
 tile_plot <- ggplot(total_disbursments_by_sids_sector, aes(x=Sector , y= RecipientName,
@@ -121,12 +158,14 @@ tile_plot <- ggplot(total_disbursments_by_sids_sector, aes(x=Sector , y= Recipie
 tile_plot
 
 ```
+Plot Interactively
+
 
 ```{r}
 ggplotly(tile_plot)
 ```
 
-Percentages global
+Calculate what percentage of each countries budget goes to each sector
 
 ```{r}
 total_disbursments_by_country_sector <- total_disbursments_by_country_sector %>% 
@@ -134,20 +173,30 @@ total_disbursments_by_country_sector <- total_disbursments_by_country_sector %>%
   mutate(percentage = disbursement/sum(disbursement))
 ```
 
+## Join Data
+
+Change cluster name for joining
+
 ```{r}
 colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
 ```
 
-
+Join Activity Cluster and Descriptive Stats by Cluster column (cluster = topic)
 
 ```{r}
 activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
 ```
 
+
+Filter joined dataset for SIDS
+
 ```{r}
 activity_stats_sids<-activity_stats_join %>%
   filter(RecipientName %in% sids)
 ```
+
+
+Get unique disbursement for each country and topic
 
 ```{r}
 activity_stats_sids_clusters<- activity_stats_sids %>% 
@@ -156,16 +205,25 @@ activity_stats_sids_clusters<- activity_stats_sids %>%
 ```
 
 
-```{r}
-activity_stats_sids <- activity_stats_sids %>% 
-  group_by(RecipientName)  %>% 
-  mutate(percentage = disbursement/sum(disbursement))
-```
+
+Calculate the topics percentage of each SIDS total disbursement
 
 ```{r}
 activity_stats_sids_clusters<-activity_stats_sids_clusters %>% 
   group_by(RecipientName)  %>% 
   mutate(percentage = sum_disbursment_by_cluster/sum(sum_disbursment_by_cluster))
+```
+
+
+
+
+
+
+
+```{r}
+activity_stats_sids <- activity_stats_sids %>% 
+  group_by(RecipientName)  %>% 
+  mutate(percentage = disbursement/sum(disbursement))
 ```
 
 ```{r}
@@ -181,6 +239,25 @@ topic_sector<- activity_stats_sids %>%
 ```
 
 ```{r}
+topic_sector_sunburst<- activity_stats_sids %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(sum_disbursement))
+```
 
+```{r}
+topic_sector_sunburst_merged <- topic_sector_sunburst %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r}
+topic_sector_sunburst_merged<- subset(topic_sector_sunburst_merged, select= -c(topic))
+```
+
+
+```{r}
+p <- sunburst(topic_sector_sunburst_merged, legend=FALSE)
+p
 ```
 
