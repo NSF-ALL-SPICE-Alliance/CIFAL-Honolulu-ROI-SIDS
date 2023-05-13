@@ -1,0 +1,172 @@
+---
+title: "Sunburst by Sids"
+author: "Connor"
+date: "5/12/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(plotly)
+library(readxl)
+library(janitor)
+library(sunburstR)
+options(scipen = 99)
+```
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- activity_clusters %>% 
+  mutate(disbursement = USD_Disbursement * 1000000)
+```
+
+
+
+
+
+```{r, include=FALSE, results='hide'}
+colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
+```
+
+
+```{r, include=FALSE, results='hide'}
+sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
+             'Cook Islands', 'Dominica', 'Dominican Republic', 'Fiji', 'Grenada', 'Guinea-Bissau', 'Guyana', 
+             'Haiti', 'Jamaica', 'Kiribati', 'Maldives', 'Marshall Islands', 'Mauritius', 'Micronesia', 
+             'Montserrat', 'Nauru', 'Niue', 'Palau', 'Papua New Guinea', 'Saint Kitts and Nevis', 'Saint Lucia', 
+             'Saint Vincent and the Grenadines', 'Samoa', 'Sao Tome and Principe', 'Seychelles', 'Solomon Islands', 
+             'Suriname', 'Timor-Leste', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Turks and Caicos Islands', 
+             'Tuvalu', 'Vanuatu')
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids<-activity_stats_join %>%
+  filter(RecipientName %in% sids)
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids <- activity_stats_sids %>% 
+  clean_names()
+```
+
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst<- activity_stats_sids %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(sum_disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged <- topic_sector_sunburst %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged<- subset(topic_sector_sunburst_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
+```
+
+
+```{r}
+p <- sunburst(topic_sector_sunburst_merged, legend=TRUE)
+p
+```
+
+
+
+Sunburst by SIDS - All SIDS
+
+```{r}
+activity_stats_sids_by_sids<- activity_stats_sids %>% 
+  group_by(topic, sector, recipient_name) %>% 
+  summarize(sum_disbursement = sum(sum_disbursement))
+  
+```
+
+
+```{r}
+topic_sector_sunburst_merged_by_sids <- activity_stats_sids_by_sids %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement, recipient_name)
+```
+
+Chat GPT Notes
+
+# install and load the required packages
+install.packages("sunburstR")
+library(sunburstR)
+
+# load the data
+sunburst_sids <- read.csv("your_file.csv") # replace "your_file.csv" with the name of your data file
+
+# create the sunburst plot with all recipient names
+sunburst(sunburst_sids, 
+         count = "amount_usd",
+         legend = "recipient_name")
+
+# add the interactive dropdown for recipient names
+update_sunburst_input(
+  input_id = "recipient_name_dropdown",
+  data = sunburst_sids,
+  label = "Select recipient name:",
+  column = "recipient_name",
+  type = "select",
+  multiple = FALSE
+)
+
+# create a reactive function to update the sunburst plot based on the selected recipient name
+ui <- fluidPage(
+  selectInput(
+    inputId = "recipient_name_dropdown",
+    label = "Select recipient name:",
+    choices = unique(sunburst_sids$recipient_name)
+  ),
+  sunburstOutput("sunburst_plot")
+)
+
+server <- function(input, output) {
+  output$sunburst_plot <- renderSunburst({
+    selected_data <- sunburst_sids[sunburst_sids$recipient_name == input$recipient_name_dropdown, ]
+    sunburst(selected_data,
+             count = "amount_usd",
+             legend = "recipient_name")
+  })
+}
+
+# run the app
+shinyApp(ui, server)
+
