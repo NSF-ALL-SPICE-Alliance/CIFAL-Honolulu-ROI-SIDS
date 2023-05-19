@@ -13,6 +13,7 @@ library(plotly)
 library(readxl)
 library(janitor)
 library(sunburstR)
+library(htmltools)
 options(scipen = 99)
 ```
 
@@ -209,7 +210,7 @@ activity_stats_sids <- activity_stats_sids %>%
 ```{r, include=FALSE, results='hide'}
 topic_sector_sunburst<- activity_stats_sids %>% 
   group_by(topic, sector) %>% 
-  summarize(sum_disbursement = sum(sum_disbursement))
+  summarize(sum_disbursement = sum(disbursement))
 ```
 
 ```{r, include=FALSE, results='hide'}
@@ -234,7 +235,7 @@ topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_secto
 This sunburst chart allows us to better visualize the relationship between the SIDS sectors and their overarching "topics" as a collective, representing the data for all disbursement of all SIDS, combined. The inner ring represents the proportion of funding that was distributed to each topic, of which there are 31. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector.
 
 ```{r}
-p <- sunburst(topic_sector_sunburst_merged, legend=FALSE)
+p <- sunburst(topic_sector_sunburst_merged, legend=FALSE, width="100%", height=400)
 p
 ```
 
@@ -242,17 +243,80 @@ p
 AIS<-c('Bahrain', 'Cabo Verde', 'Comoros', 'Guinea-Bissau', 'Maldives', 'Mauritius',' Sao Tomé and Principe', 'Seychelles', 'Singapore')
 ```
 
-```{r, include=FALSE, results='hide'}
-NonUN<-c('Anguilla', 'Turks and Caicos Islands', 'Montserrat')
-```
 
 ```{r, include=FALSE, results='hide'}
-Caribbean<-c('Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Cuba', 'Dominica', 'Dominican Republic', 'Grenada', 'Guyana', 'Haiti', 'Jamaica', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Suriname', 'Trinidad and Tobago')
+Caribbean<-c('Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Cuba', 'Dominica', 'Dominican Republic', 'Grenada', 'Guyana', 'Haiti', 'Jamaica', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Suriname', 'Trinidad and Tobago', 'Turks and Caicos Islands', 'Montserrat', 'Anguilla')
 ```
 
 ```{r, include=FALSE, results='hide'}
 Pacific<-c('Fiji', 'Kiribati', 'Marshall Islands', 'Micronesia (Federated States of)', 'Nauru', 'Palau', 'Papua New Guinea', 'Samoa', 'Solomon Islands', 'Timor-Leste', 'Tonga', 'Tuvalu', 'Vanuatu')
 ```
+
+
+Pacific Sunburst
+
+```{r, include=FALSE, results='hide'}
+activity_stats_pacific<-activity_stats_join %>%
+  filter(RecipientName %in% Pacific)
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_pacific <- activity_stats_pacific %>% 
+  clean_names()
+```
+
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific<- activity_stats_pacific %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific_merged <- topic_sector_sunburst_pacific %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific_merged<- subset(topic_sector_sunburst_pacific_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific_merged$path <- gsub(" - ", ",", topic_sector_sunburst_pacific_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_pacific_merged$path)
+```
+
+This sunburst chart allows us to better visualize the relationship between the SIDS sectors and their overarching "topics" as a collective, representing the data for all disbursement of all SIDS, combined. The inner ring represents the proportion of funding that was distributed to each topic, of which there are 31. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector.
+
+```{r}
+pac <- sunburst(topic_sector_sunburst_pacific_merged, legend=FALSE, width="100%", height=400)
+pac
+```
+
+
+
+```{r}
+div(
+  style="display: flex; align-items:center;",
+  div(style="width:50%; border:1px solid #ccc;", p),
+  div(style="width:50%; border:1px solid #ccc;", pac)
+)
+
+```
+
+
+
+
+
+
 
 ```{r, include=FALSE, results='hide'}
 region_sids_disbursement<-table(total_disbursments_by_sids$RecipientName, total_disbursments_by_sids$disbursement)
