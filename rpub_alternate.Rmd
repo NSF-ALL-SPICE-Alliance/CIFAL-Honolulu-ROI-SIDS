@@ -101,7 +101,7 @@ activity_clusters_sids <- activity_clusters %>%
   filter(RecipientName %in% sids)
 ```
 
-Identify SIDS in datset (41)
+
 
 ```{r, include=FALSE, results='hide'}
 unique(activity_clusters_sids$RecipientName)
@@ -137,7 +137,7 @@ plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
 plot
 ```
 
-Below is a visualization of each SIDS and their total disbursement (funding), color coordinated to illustrate what fraction of the budget was used for a given sector. The results indicate that of the 31 SIDS, Haiti received the most funds, with the majority directed towards the 'Emergency Response' sector. Hovering the cursor over a section of a bar will display the disbursement and sector for that section.
+**_Below is a visualization of each SIDS and their total disbursement (funding), color coordinated to illustrate what fraction of the budget was used for a given sector. The results indicate that of the 31 SIDS, Haiti received the most funds, with the majority directed towards the 'Emergency Response' sector. Hovering the cursor over a section of a bar will display the disbursement and sector for that section._**
 
 ```{r}
 ggplotly(plot)
@@ -169,8 +169,7 @@ tile_plot
 
 ```
 
-Next, we have a heat-map of the distribution of funds by sector. Each tile represents the percentage of that SIDS' total budget that was spent on the corresponding sector. Darker colors indicate a higher percentage; for example, Bahrain used over 70% of its' funding on Education, indicated by the dark red tile on the lower left side of the map. Hovering the cursor over a given tile will display the sector, SIDS, and percentage distribution - expressed as a decimal - for that tile.
-
+**_Next, we have a heat-map of the distribution of funds by sector. Each tile represents the percentage of that SIDS' total budget that was spent on the corresponding sector. Darker colors indicate a higher percentage; for example, Bahrain used over 70% of its' funding on Education, indicated by the dark red tile on the lower left side of the map. Hovering the cursor over a given tile will display the sector, SIDS, and percentage distribution - expressed as a decimal - for that tile._**
 ```{r}
 ggplotly(tile_plot)
 ```
@@ -232,7 +231,7 @@ topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merg
 topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
 ```
 
-This sunburst chart allows us to better visualize the relationship between the SIDS sectors and their overarching "topics" as a collective, representing the data for all disbursement of all SIDS, combined. The inner ring represents the proportion of funding that was distributed to each topic, of which there are 31. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector.
+**_This sunburst chart allows us to better visualize the relationship between the SIDS sectors and their overarching "topics" as a collective, representing the data for all disbursement of all SIDS, combined. The inner ring represents the proportion of funding that was distributed to each topic, of which there are 31. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector._**
 
 ```{r}
 p <- sunburst(topic_sector_sunburst_merged, legend=FALSE, width="100%", height=400)
@@ -253,21 +252,17 @@ Pacific<-c('Fiji', 'Kiribati', 'Marshall Islands', 'Micronesia (Federated States
 ```
 
 
-Pacific Sunburst
+
 
 ```{r, include=FALSE, results='hide'}
 activity_stats_pacific<-activity_stats_join %>%
   filter(RecipientName %in% Pacific)
 ```
 
-
-
-
 ```{r, include=FALSE, results='hide'}
 activity_stats_pacific <- activity_stats_pacific %>% 
   clean_names()
 ```
-
 
 ```{r, include=FALSE, results='hide'}
 topic_sector_sunburst_pacific<- activity_stats_pacific %>% 
@@ -294,36 +289,105 @@ topic_sector_sunburst_pacific_merged$path <- gsub(" - ", ",", topic_sector_sunbu
 topic_sector_sunburst_pacific_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_pacific_merged$path)
 ```
 
-This sunburst chart allows us to better visualize the relationship between the SIDS sectors and their overarching "topics" as a collective, representing the data for all disbursement of all SIDS, combined. The inner ring represents the proportion of funding that was distributed to each topic, of which there are 31. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector.
-
-```{r}
+```{r, include=FALSE, results='hide'}
 pac <- sunburst(topic_sector_sunburst_pacific_merged, legend=FALSE, width="100%", height=400)
 pac
 ```
 
 
 
+
+```{r, include=FALSE, results='hide'}
+activity_stats_caribbean<-activity_stats_join %>%
+  filter(RecipientName %in% Caribbean)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_caribbean <- activity_stats_caribbean %>% 
+  clean_names()
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean<- activity_stats_caribbean %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean_merged <- topic_sector_sunburst_caribbean %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean_merged<- subset(topic_sector_sunburst_caribbean_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean_merged$path <- gsub(" - ", ",", topic_sector_sunburst_caribbean_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_caribbean_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+car <- sunburst(topic_sector_sunburst_caribbean_merged, legend=FALSE, width="100%", height=400)
+car
+```
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_AIS<-activity_stats_join %>%
+  filter(RecipientName %in% AIS)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_AIS <- activity_stats_AIS %>% 
+  clean_names()
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS<- activity_stats_AIS %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS_merged <- topic_sector_sunburst_AIS %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS_merged<- subset(topic_sector_sunburst_AIS_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS_merged$path <- gsub(" - ", ",", topic_sector_sunburst_AIS_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_AIS_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+AIS <- sunburst(topic_sector_sunburst_AIS_merged, legend=FALSE, width="100%", height=400)
+AIS
+```
+
+**_Finally, we have three different sunbursts that illustrate the budgets of SIDS based on their region. From left to right; the Caribbean region, the Pacific region, and the Atlantic/Indian Ocean/South China Sea region. Compare these charts with the original sunburst to better understand how the funding is disbursed regionally. For a list of which SIDS belong to which region, visit https://sustainabledevelopment.un.org/topics/sids/list. _**
+
 ```{r}
 div(
   style="display: flex; align-items:center;",
-  div(style="width:50%; border:1px solid #ccc;", p),
-  div(style="width:50%; border:1px solid #ccc;", pac)
+  div(style="width:50%; border:1px solid #ccc;", car),
+  div(style="width:50%; border:1px solid #ccc;", pac),
+  div(style="width:50%; border:1px solid #ccc;", AIS)
 )
 
 ```
 
 
-
-
-
-
-
-```{r, include=FALSE, results='hide'}
-region_sids_disbursement<-table(total_disbursments_by_sids$RecipientName, total_disbursments_by_sids$disbursement)
-```
-
-```{r}
-region_sids_disbursement %>% 
-  select(Var1 = 'Bahrain', 'Cabo Verde', 'Comoros', 'Guinea-Bissau', 'Maldives', 'Mauritius',' Sao Tomé and Principe', 'Seychelles', 'Singapore') %>% 
-  mutate(Var1 = paste('AIS', Var1, sep='-'))
-```
