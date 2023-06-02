@@ -1,5 +1,5 @@
 ---
-title: "Analysis of the Results from 'Monitoring global development aid with machine learning'"
+title: "SIDS-Focused Analysis of the Results from 'Monitoring global development aid with machine learning'"
 author: "Connor Flynn, Quinn McHenry, Katherine Gonzales"
 date: "5/5/2023"
 output: html_document
@@ -18,7 +18,7 @@ options(scipen = 99)
 ```
 
 
-#!#[]#(/Users/connorflynn/Documents/SDG/SIDS_SDG_UNSTATS/visualizations/cifal_logo.png){width=150} 
+!#[]#(/Users/connorflynn/Documents/SDG/SIDS_SDG_UNSTATS/visualizations/cifal_logo.png){width=150} 
 
 
 The data source of this work is the results from the paper [Monitoring global development aid with machine learning](https://www.nature.com/articles/s41893-022-00874-z) specifically sourced form their [Github](https://github.com/MalteToetzke/Monitoring-Global-Development-Aid-With-Machine-Learning/tree/main/Data)
@@ -191,7 +191,7 @@ activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluste
 For perspective, this is the global breakdown of aid distribution by Sector  and Topic. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector. 
 
 - Global Aid Distribution 
- - $
+ - $2,759,569,352,983
 
 
 ```{r, include=FALSE, results='hide'}
@@ -204,7 +204,7 @@ activity_stats_all <- activity_stats_join %>%
 ```{r, include=FALSE, results='hide'}
 activity_stats_all<- activity_stats_all %>% 
   group_by(topic, sector) %>% 
-  summarize(sum_disbursement = sum(sum_disbursement))
+  summarize(sum_disbursement = sum(disbursement))
 ```
 
 
@@ -220,6 +220,13 @@ topic_sector_sunburst_merged_all <- activity_stats_all %>%
 topic_sector_sunburst_merged_all<- subset(topic_sector_sunburst_merged_all, select= -c(topic))
 ```
 
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all$path <- gsub(" - ", ",", topic_sector_sunburst_merged_all$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged_all$path)
+```
 
 ```{r}
 p <- sunburst(topic_sector_sunburst_merged_all, legend=FALSE)
