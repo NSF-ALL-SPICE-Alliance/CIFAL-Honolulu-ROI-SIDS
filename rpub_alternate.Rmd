@@ -37,7 +37,6 @@ Visualize **more granular descriptions of aid than the 17 SDG's** for Small Isla
 
 
 
-
 ```{r, include=FALSE, results='hide'}
 activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
 ```
@@ -189,7 +188,43 @@ colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
 activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
 ```
 
+For perspective, this is the global breakdown of aid distribution by Sector  and Topic. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector. 
 
+- Global Aid Distribution 
+ - $
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_all <- activity_stats_join %>% 
+  clean_names()
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_all<- activity_stats_all %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(sum_disbursement))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all <- activity_stats_all %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all<- subset(topic_sector_sunburst_merged_all, select= -c(topic))
+```
+
+
+```{r}
+p <- sunburst(topic_sector_sunburst_merged_all, legend=FALSE)
+p
+```
 
 
 ```{r, include=FALSE, results='hide'}
@@ -232,6 +267,11 @@ topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_secto
 ```
 
 **_This sunburst chart allows us to better visualize the relationship between the SIDS sectors and their overarching "topics" as a collective, representing the data for all disbursement of all SIDS, combined. The inner ring represents the proportion of funding that was distributed to each topic, of which there are 31. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector._**
+
+- Total Aid Distribution for all SIDS 
+  - $79,391,073,760
+
+
 
 ```{r}
 p <- sunburst(topic_sector_sunburst_merged, legend=FALSE, width="100%", height=400)
@@ -379,6 +419,15 @@ AIS
 ```
 
 **_Finally, we have three different sunbursts that illustrate the budgets of SIDS based on their region. From left to right; the Caribbean region, the Pacific region, and the Atlantic/Indian Ocean/South China Sea region. Compare these charts with the original sunburst to better understand how the funding is disbursed regionally. For a list of which SIDS belong to which region, visit https://sustainabledevelopment.un.org/topics/sids/list. _**
+
+- Carribean Aid Distribution Total
+  - $44,691,703,523
+
+- Pacific Aid Distribution Total
+  - $25,805,992,360
+
+- AIS Aid Distribution Total
+  - $11,003,704,762
 
 ```{r}
 div(
