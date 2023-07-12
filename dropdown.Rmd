@@ -1,0 +1,38 @@
+---
+title: "dropdownexp"
+author: "quinn mchenry"
+date: "2023-07-12"
+output: html_document
+---
+
+```{r}
+library(shiny)
+library(sunburstR)
+```
+
+```{r}
+ui <- fluidPage(
+  selectInput("chart_selector", "Select Chart:", choices = c("Caribbean", "Pacific", "AIS")), 
+  uiOutput("selected_chart")
+)
+```
+
+```{r}
+server <- function(input, output) {
+  output$selected_chart <- renderUI({
+    if (input$chart_selector == "Caribbean") {
+      car
+    } else if (input$chart_selector == "Pacific") {
+      pac
+    } else if (input$chart_selector == "AIS") {
+      AIS
+    }
+
+  })
+}
+```
+
+```{r}
+shinyApp(ui = ui, server = server)
+```
+
