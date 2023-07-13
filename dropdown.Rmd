@@ -5,9 +5,11 @@ date: "2023-07-12"
 output: html_document
 ---
 
+
 ```{r}
 library(shiny)
 library(sunburstR)
+library(d3r)
 ```
 
 ```{r}
@@ -34,5 +36,51 @@ server <- function(input, output) {
 
 ```{r}
 shinyApp(ui = ui, server = server)
+```
+
+```{r}
+colnames(activity_stats_all) [2] <- "Sector"
+```
+
+
+```{r}
+country_disbursements <- merge(activity_stats_all, total_disbursments_by_country_sector, by = "Sector")
+```
+
+```{r}
+country_disbursements<- subset(country_disbursements, select= -c(sum_disbursement))
+```
+
+```{r}
+countries_list <- unique(country_disbursements$RecipientName)
+```
+
+```{r}
+country_disbursements_charts <- list()
+```
+
+```{r}
+for (RecipientName in countries_list) {
+  select 
+  country_table <- country_disbursements[country_disbursements$RecipientName == Afghanistan, ]
+
+  sunburst_data <- with(
+    country_table,
+    data.frame(
+      name = paste(RecipientName, Sector, topic, sep = "|"),
+      parent = paste(RecipientName, Sector, sep = "|"),
+      value = disbursement
+    )
+  )
+     sunburst_chart <- sunburst(country_table, labels = c(Sector, topic), values = disbursement)
+      sunburst_charts[[RecipientName]] <- sunburst_chart
+}
+```
+
+```{r}
+unique(countries_list)
+```
+```{r}
+
 ```
 
