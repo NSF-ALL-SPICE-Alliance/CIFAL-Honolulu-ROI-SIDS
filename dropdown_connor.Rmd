@@ -1,0 +1,666 @@
+---
+title: "SIDS-Focused Analysis of the Results from 'Monitoring global development aid with machine learning'"
+author: "Connor Flynn, Quinn McHenry, Katherine Gonzalez"
+date: "5/5/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(plotly)
+library(readxl)
+library(janitor)
+library(sunburstR)
+library(htmltools)
+library(shiny)
+options(scipen = 99)
+```
+
+
+![](/Users/connorflynn/Documents/SDG/SIDS_SDG_UNSTATS/visualizations/cifal_logo.png){width=150} 
+
+![](/Users/connorflynn/Downloads/SpiceLogo1.png){width=150} 
+
+The data source of this work is the results from the paper [Monitoring global development aid with machine learning](https://www.nature.com/articles/s41893-022-00874-z) specifically sourced from their [Github](https://github.com/MalteToetzke/Monitoring-Global-Development-Aid-With-Machine-Learning/tree/main/Data)
+
+
+### Goal of this work
+
+Visualize **more granular descriptions of aid than the 17 SDG's** for Small Island Develping States (SIDS)
+
+  - How much aid is each SIDS receiving?:
+    - For which sectors? (31 total)
+    
+  - For SIDS as a whole, what proportion of the overall aid goes to each of the specific topics? (171 total)
+
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- activity_clusters %>% 
+  mutate(disbursement = USD_Disbursement * 1000000)
+```
+
+
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_country <- activity_clusters %>% 
+  group_by(RecipientName) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_country_sector <-activity_clusters %>% 
+  group_by(RecipientName, Sector) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+unique(activity_clusters$RecipientName)
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
+             'Cook Islands', 'Dominica', 'Dominican Republic', 'Fiji', 'Grenada', 'Guinea-Bissau', 'Guyana', 
+             'Haiti', 'Jamaica', 'Kiribati', 'Maldives', 'Marshall Islands', 'Mauritius', 'Micronesia', 
+             'Montserrat', 'Nauru', 'Niue', 'Palau', 'Papua New Guinea', 'Saint Kitts and Nevis', 'Saint Lucia', 
+             'Saint Vincent and the Grenadines', 'Samoa', 'Sao Tome and Principe', 'Seychelles', 'Solomon Islands', 
+             'Suriname', 'Timor-Leste', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Turks and Caicos Islands', 
+             'Tuvalu', 'Vanuatu')
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters_sids <- activity_clusters %>%
+  filter(RecipientName %in% sids)
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+unique(activity_clusters_sids$RecipientName)
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_sids <- activity_clusters_sids %>% 
+  group_by(RecipientName) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_sids_sector <- activity_clusters_sids %>% 
+  group_by(RecipientName, Sector) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
+                                              y = reorder(RecipientName, disbursement),
+                                              fill = Sector)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Aid by SIDS by Sector", y = "SIDS", x = "Aid in $USD") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, size = 4, hjust = 1))
+
+plot
+```
+
+Below is a visualization of each SIDS and their total disbursement (funding), color coordinated to illustrate what fraction of the budget was used for a given sector. The results indicate that of the 31 SIDS, Haiti received the most funds, with the majority directed towards the 'Emergency Response' sector. 
+
+- Hovering the cursor over a section of a bar will display the disbursement and sector for that section.
+
+```{r}
+ggplotly(plot)
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+total_disbursments_by_sids_sector <- total_disbursments_by_sids_sector %>% 
+  group_by(RecipientName)  %>% 
+  mutate(percentage = disbursement/sum(disbursement))
+
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+tile_plot <- ggplot(total_disbursments_by_sids_sector, aes(x=Sector , y= RecipientName,
+                                              fill = percentage)) +
+  geom_tile() +
+  labs(title = "Percentage of Budget allocated to each Sector by SIDS", y = "SIDS", x = "Sector") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, size = 4, hjust = 1),
+        axis.text.y = element_text(size = 3, hjust = 1)) +
+  scale_fill_gradient(low = "khaki", high = "red")
+  
+tile_plot
+
+```
+
+Next, we have a heat-map of the distribution of funds by sector. Each tile represents the percentage of that SIDS' total budget spent on the corresponding sector. Darker colors indicate a higher percentage; for example, Bahrain used over 70% of its' funding on Education, indicated by the dark red tile on the lower left side of the map. 
+
+ - Hovering the cursor over a given tile will display the sector, SIDS, and percentage distribution - expressed as a decimal - for that tile.
+```{r}
+ggplotly(tile_plot)
+```
+
+
+
+
+
+
+```{r, include=FALSE, results='hide'}
+colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
+```
+
+For perspective, this is the global breakdown of aid distribution by Sector  and Topic. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. 
+
+- Hovering the cursor over a section of the chart will display the proportion expressed as a percentage, along with labels in the upper left that indicate the relative topic and/or sector. 
+
+- Global Aid Distribution 
+ - $2,759,569,352,983
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_all <- activity_stats_join %>% 
+  clean_names()
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_all<- activity_stats_all %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(disbursement))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all <- activity_stats_all %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all<- subset(topic_sector_sunburst_merged_all, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all$path <- gsub(" - ", ",", topic_sector_sunburst_merged_all$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged_all$path)
+```
+
+```{r}
+p <- sunburst(topic_sector_sunburst_merged_all, legend=FALSE)
+p
+```
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids<-activity_stats_join %>%
+  filter(RecipientName %in% sids)
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids <- activity_stats_sids %>% 
+  clean_names()
+```
+
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst<- activity_stats_sids %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged <- topic_sector_sunburst %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged<- subset(topic_sector_sunburst_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
+```
+
+This sunburst chart allows us to better visualize the relationship between the SIDS sectors and their overarching "topics" as a collective, representing the data for all disbursement of all SIDS, combined. The inner ring represents the proportion of funding that was distributed to each topic, of which there are 31. The outer ring shows us the distribution of funding for each sector, separated by their respective topics. 
+
+- Total Aid Distribution for all SIDS 
+  - $79,391,073,760
+
+
+
+```{r}
+p <- sunburst(topic_sector_sunburst_merged, legend=FALSE, width="100%", height=400)
+p
+```
+
+```{r, include=FALSE, results='hide'}
+AIS<-c('Bahrain', 'Cabo Verde', 'Comoros', 'Guinea-Bissau', 'Maldives', 'Mauritius',' Sao Tomé and Principe', 'Seychelles', 'Singapore')
+```
+
+
+```{r, include=FALSE, results='hide'}
+Caribbean<-c('Antigua and Barbuda', 'Bahamas', 'Barbados', 'Belize', 'Cuba', 'Dominica', 'Dominican Republic', 'Grenada', 'Guyana', 'Haiti', 'Jamaica', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Suriname', 'Trinidad and Tobago', 'Turks and Caicos Islands', 'Montserrat', 'Anguilla')
+```
+
+```{r, include=FALSE, results='hide'}
+Pacific<-c('Fiji', 'Kiribati', 'Marshall Islands', 'Micronesia (Federated States of)', 'Nauru', 'Palau', 'Papua New Guinea', 'Samoa', 'Solomon Islands', 'Timor-Leste', 'Tonga', 'Tuvalu', 'Vanuatu')
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_pacific<-activity_stats_join %>%
+  filter(RecipientName %in% Pacific)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_pacific <- activity_stats_pacific %>% 
+  clean_names()
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific<- activity_stats_pacific %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific_merged <- topic_sector_sunburst_pacific %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific_merged<- subset(topic_sector_sunburst_pacific_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific_merged$path <- gsub(" - ", ",", topic_sector_sunburst_pacific_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_pacific_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_pacific_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+pac <- sunburst(topic_sector_sunburst_pacific_merged, legend=FALSE, width="100%", height=400)
+pac
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_caribbean<-activity_stats_join %>%
+  filter(RecipientName %in% Caribbean)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_caribbean <- activity_stats_caribbean %>% 
+  clean_names()
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean<- activity_stats_caribbean %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean_merged <- topic_sector_sunburst_caribbean %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean_merged<- subset(topic_sector_sunburst_caribbean_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean_merged$path <- gsub(" - ", ",", topic_sector_sunburst_caribbean_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_caribbean_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_caribbean_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+car <- sunburst(topic_sector_sunburst_caribbean_merged, legend=FALSE, width="100%", height=400)
+car
+```
+
+
+```{r, include=FALSE, results='hide'}
+activity_stats_AIS<-activity_stats_join %>%
+  filter(RecipientName %in% AIS)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_AIS <- activity_stats_AIS %>% 
+  clean_names()
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS<- activity_stats_AIS %>% 
+  group_by(topic, sector) %>% 
+  summarize(sum_disbursement = sum(disbursement))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS_merged <- topic_sector_sunburst_AIS %>%
+  filter(sector != "") %>%
+  mutate(path = paste(sector, topic, sep="-")) %>%
+  dplyr::select(path, sum_disbursement)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS_merged<- subset(topic_sector_sunburst_AIS_merged, select= -c(topic))
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS_merged$path <- gsub(" - ", ",", topic_sector_sunburst_AIS_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_AIS_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_AIS_merged$path)
+```
+
+```{r, include=FALSE, results='hide'}
+AIS <- sunburst(topic_sector_sunburst_AIS_merged, legend=FALSE, width="100%", height=400)
+AIS
+```
+
+Lastly, we have three different sunbursts that illustrate the budgets of SIDS based on their region. From left to right; the Caribbean region, the Pacific region, and the Atlantic/Indian Ocean/South China Sea region. Compare these charts with the original sunburst to better understand how the funding is disbursed regionally.
+
+- Caribbean Aid Distribution Total
+  - $44,691,703,523
+
+- Pacific Aid Distribution Total
+  - $25,805,992,360
+
+- AIS Aid Distribution Total
+  - $11,003,704,762
+
+```{r}
+div(
+  style="display: flex; align-items:center;",
+  div(style="width:50%; border:1px solid #ccc;", car),
+  div(style="width:50%; border:1px solid #ccc;", pac),
+  div(style="width:50%; border:1px solid #ccc;", AIS)
+)
+
+```
+
+
+
+# Dropdown
+
+```{r}
+ui <- fluidPage(
+  selectInput("chart_selector", "Select Chart:", choices = c("Caribbean", "Pacific", "AIS")), 
+  uiOutput("selected_chart")
+)
+```
+
+```{r}
+server <- function(input, output) {
+  output$selected_chart <- renderUI({
+    if (input$chart_selector == "Caribbean") {
+      car
+    } else if (input$chart_selector == "Pacific") {
+      pac
+    } else if (input$chart_selector == "AIS") {
+      AIS
+    }
+
+  })
+}
+```
+
+```{r}
+shinyApp(ui = ui, server = server)
+```
+
+
+```{r}
+colnames(activity_stats_all) [2] <- "Sector"
+```
+
+
+```{r}
+country_disbursements <- merge(activity_stats_all, total_disbursments_by_country_sector, by = "Sector")
+```
+
+```{r}
+country_disbursements<- subset(country_disbursements, select= -c(sum_disbursement))
+```
+
+```{r}
+countries_list <- unique(country_disbursements$RecipientName)
+```
+
+```{r}
+country_disbursements_charts <- list()
+```
+
+```{r}
+for (RecipientName in countries_list) {
+  select 
+  country_table <- country_disbursements[country_disbursements$RecipientName == i, ]
+
+  sunburst_data <- with(
+    country_table,
+    data.frame(
+      name = paste(RecipientName, Sector, topic, sep = "|"),
+      parent = paste(RecipientName, Sector, sep = "|"),
+      value = disbursement
+    )
+  )
+     sunburst_chart <- sunburst(country_table, labels = c(Sector, topic), values = disbursement)
+      sunburst_charts[[RecipientName]] <- sunburst_chart
+}
+```
+
+```{r}
+unique(countries_list)
+```
+
+
+
+```{r}
+country_disbursements_merged <- country_disbursements %>%
+  filter(Sector != "") %>%
+  mutate(path = paste(Sector, topic, sep="-")) %>%
+  dplyr::select(path, disbursement, RecipientName)
+```
+
+
+
+For loop 
+
+Start with  dataset with countries
+- activity stats sids
+
+Filter dataframe for each country in list of countries 
+
+Once filtered, drop country column
+
+Merge columns to get ready for sunburst
+
+Create sunburst chart and name the chart country_sunburst 
+
+Plug into Quinn's code
+
+
+```{r}
+activity_stats_sids
+```
+
+```{r}
+sids
+```
+```{r}
+# Assuming you have already loaded your dataset and have the list "sids" available
+
+# Iterate through each unique value in recipient_name
+for (s in sids) {
+  # Filter the dataset for the current SIDS
+  sids_data <- activity_stats_sids %>%
+    filter(recipient_name == s)
+  
+  # Perform the same steps as before to create the sunburst data
+  topic_sector_sunburst <- sids_data %>% 
+    group_by(topic, sector) %>% 
+    summarize(sum_disbursement = sum(disbursement))
+
+  topic_sector_sunburst_merged <- topic_sector_sunburst %>%
+    filter(sector != "") %>%
+    mutate(path = paste(sector, topic, sep="-")) %>%
+    dplyr::select(path, sum_disbursement)
+
+  topic_sector_sunburst_merged <- subset(topic_sector_sunburst_merged, select = -c(topic))
+
+  topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merged$path)
+
+  topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
+  
+  # Create the sunburst plot
+  p <- sunburst(topic_sector_sunburst_merged, legend = FALSE, width = "100%", height = 400)
+  
+  # Save the sunburst plot with the appropriate name
+  plot_name <- paste(s, "_sunburst.png", sep = "")
+  png(plot_name)
+  print(p)
+  dev.off()
+}
+
+```
+
+
+
+```{r}
+# Create an empty list to store the sunburst plots
+sunburst_plots <- list()
+
+# Iterate through each unique value in recipient_name
+for (s in sids) {
+  # Filter the dataset for the current SIDS
+  sids_data <- activity_stats_sids %>%
+    filter(recipient_name == s)
+  
+  # Perform the same steps as before to create the sunburst data
+  topic_sector_sunburst <- sids_data %>% 
+    group_by(topic, sector) %>% 
+    summarize(sum_disbursement = sum(disbursement))
+
+  topic_sector_sunburst_merged <- topic_sector_sunburst %>%
+    filter(sector != "") %>%
+    mutate(path = paste(sector, topic, sep="-")) %>%
+    dplyr::select(path, sum_disbursement)
+
+  topic_sector_sunburst_merged <- subset(topic_sector_sunburst_merged, select = -c(topic))
+
+  topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merged$path)
+
+  topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
+  
+  # Create the sunburst plot
+  p <- sunburst(topic_sector_sunburst_merged, legend = FALSE, width = "100%", height = 400)
+  
+  # Save the sunburst plot in the list with the appropriate name
+  sunburst_plots[[s]] <- p
+}
+
+# Now you have all the sunburst plots stored in the "sunburst_plots" list
+# To access a specific sunburst plot for a country, you can use sunburst_plots[["country_name"]]
+# For example, to display the sunburst plot for Vanuatu:
+sunburst_plots$Fiji
+```
+
+```{r}
+# Define the UI for the Shiny app
+ui <- fluidPage(
+  selectInput("country_selector", "Select Country:", choices = sids), 
+  uiOutput("selected_sunburst")
+)
+
+# Define the server for the Shiny app
+server <- function(input, output) {
+  output$selected_sunburst <- renderUI({
+    country_name <- input$country_selector
+    
+    # Retrieve the selected sunburst plot from the "sunburst_plots" list
+    selected_plot <- sunburst_plots[[country_name]]
+    
+    # Display the selected sunburst plot
+    renderSunburst(selected_plot)
+  })
+}
+
+# Run the Shiny app
+shinyApp(ui = ui, server = server)
+```
+
