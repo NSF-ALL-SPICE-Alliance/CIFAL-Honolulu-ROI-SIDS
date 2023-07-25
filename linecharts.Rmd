@@ -1,0 +1,92 @@
+---
+title: "sectorlinecharts"
+author: "quinn mchenry"
+date: "2023-07-25"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(hrbrthemes)
+library(dplyr)
+```
+
+```{r}
+join_sector_merged <- merge(total_disbursments_by_country_sector, activity_stats_join[, c("disbursement", "Year")], by = "disbursement")
+
+
+year_sector_disbursement <- subset(join_sector_merged, select = c("Year", "RecipientName", "Sector", "disbursement"))
+
+
+colnames(year_sector_disbursement) <- c("Year", "RecipientName", "Sector", "disbursement")
+```
+```{r}
+year_sector_disbursement <- year_sector_disbursement %>% 
+  filter(RecipientName %in% sids)
+```
+
+```{r}
+year_sector_disbursement<-unique(year_sector_disbursement)
+```
+
+```{r}
+sector_year_disbursement <-
+  subset(year_sector_disbursement, select = -c(RecipientName))
+```
+
+```{r}
+Action_relating_to_debt <- sector_year_disbursement %>% 
+  filter(Sector == "Action Relating to Debt")
+```
+
+```{r}
+ggplot(Action_relating_to_debt, aes(x=Year, y=disbursement, ylim=27000)) +
+  geom_line() +
+  geom_point() +
+  theme_ipsum() +
+  ylab("Disbursement USD") +
+  ggtitle("Action Relating to Debt SIDS")
+```
+
+
+```{r}
+stop()
+```
+
+
+#by country
+
+
+```{r}
+Saint_Kitts_and_Nevis<-subset(year_sector_disbursement, RecipientName == "Saint Kitts and Nevis", select = c(Year, Sector, disbursement))
+```
+
+```{r}
+Micronesia <- subset(year_sector_disbursement, RecipientName == "Micronesia", select = c(Year, Sector, disbursement))
+```
+
+
+```{r}
+ggplot(Saint_Kitts_and_Nevis, aes(x=Year, y=disbursement, color = Sector)) +
+  geom_line() +
+  geom_point() +
+  theme_ipsum() +
+  ggtitle("SKaN")
+```
+
+
+```{r}
+ggplot(Micronesia, aes(x=Year, y=disbursement, color = Sector)) +
+  geom_line(size=2, alpha=0.9, linetype=2) +
+  theme_ipsum() +
+  ggtitle("micro")
+```
+
+```{r}
+ggplot(Saint_Kitts_and_Nevis, aes(x=Year, y=disbursement, color = Sector)) +
+  geom_line(size=2, alpha=0.9, linetype=2) +
+  theme_ipsum() +
+  ggtitle("Evolution of something")
+```
+
+
