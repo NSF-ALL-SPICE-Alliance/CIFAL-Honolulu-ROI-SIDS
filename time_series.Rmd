@@ -1,0 +1,119 @@
+---
+title: "time series"
+author: "Connor Flynn"
+date: "7/27/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(plotly)
+library(readxl)
+library(janitor)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- activity_clusters %>% 
+  mutate(disbursement = USD_Disbursement * 1000000)
+```
+
+```{r, include=FALSE, results='hide'}
+sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
+             'Cook Islands', 'Dominica', 'Dominican Republic', 'Fiji', 'Grenada', 'Guinea-Bissau', 'Guyana', 
+             'Haiti', 'Jamaica', 'Kiribati', 'Maldives', 'Marshall Islands', 'Mauritius', 'Micronesia', 
+             'Montserrat', 'Nauru', 'Niue', 'Palau', 'Papua New Guinea', 'Saint Kitts and Nevis', 'Saint Lucia', 
+             'Saint Vincent and the Grenadines', 'Samoa', 'Sao Tome and Principe', 'Seychelles', 'Solomon Islands', 
+             'Suriname', 'Timor-Leste', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Turks and Caicos Islands', 
+             'Tuvalu', 'Vanuatu')
+```
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters_sids <- activity_clusters %>%
+  filter(RecipientName %in% sids)
+```
+
+
+```{r}
+activity_clusters_sids_country_sector_year <- activity_clusters_sids %>% 
+  group_by(RecipientName, Year, Sector) %>% 
+  summarise(disbursement = sum(disbursement))
+```
+
+```{r}
+activity_clusters_sids_country_sector_year
+```
+
+
+```{r}
+# Create the UI for the dropdown
+ui <- fluidPage(
+  selectInput("country", "Select Country:", unique(activity_clusters_sids_country_sector_year$RecipientName)),
+  plotlyOutput("line_plot")
+)
+
+# Create the server for the dropdown and line plot
+server <- function(input, output) {
+  
+  # Filter the data based on the selected country
+  selected_data <- reactive({
+    activity_clusters_sids_country_sector_year %>%
+      filter(RecipientName == input$country)
+  })
+  
+  # Create the line plot
+  output$line_plot <- renderPlotly({
+    ggplot(selected_data(), aes(x = Year, y = disbursement, color = Sector)) +
+      geom_line() +
+      labs(title = "Disbursement by Sector Over Time",
+           x = "Year",
+           y = "Disbursement",
+           color = "Sector") +
+      theme_minimal()
+  })
+}
+
+# Run the Shiny app
+shinyApp(ui, server)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+a <- ggplot(activity_clusters_sids_country_sector_year, aes(x = Year,
+                                                       y = disbursement,
+                                                       color = RecipientName)) +
+  geom_line() +
+  theme(legend.position = "none") +
+  theme_minimal()
+
+ggplotly(a)
+```
+
+

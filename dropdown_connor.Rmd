@@ -459,29 +459,29 @@ div(
 # Dropdown
 
 ```{r}
-ui <- fluidPage(
-  selectInput("chart_selector", "Select Chart:", choices = c("Caribbean", "Pacific", "AIS")), 
-  uiOutput("selected_chart")
-)
+# ui <- fluidPage(
+#   selectInput("chart_selector", "Select Chart:", choices = c("Caribbean", "Pacific", "AIS")), 
+#   uiOutput("selected_chart")
+# )
 ```
 
 ```{r}
-server <- function(input, output) {
-  output$selected_chart <- renderUI({
-    if (input$chart_selector == "Caribbean") {
-      car
-    } else if (input$chart_selector == "Pacific") {
-      pac
-    } else if (input$chart_selector == "AIS") {
-      AIS
-    }
-
-  })
-}
+# server <- function(input, output) {
+#   output$selected_chart <- renderUI({
+#     if (input$chart_selector == "Caribbean") {
+#       car
+#     } else if (input$chart_selector == "Pacific") {
+#       pac
+#     } else if (input$chart_selector == "AIS") {
+#       AIS
+#     }
+# 
+#   })
+# }
 ```
 
 ```{r}
-shinyApp(ui = ui, server = server)
+# shinyApp(ui = ui, server = server)
 ```
 
 
@@ -507,21 +507,21 @@ country_disbursements_charts <- list()
 ```
 
 ```{r}
-for (RecipientName in countries_list) {
-  select 
-  country_table <- country_disbursements[country_disbursements$RecipientName == i, ]
-
-  sunburst_data <- with(
-    country_table,
-    data.frame(
-      name = paste(RecipientName, Sector, topic, sep = "|"),
-      parent = paste(RecipientName, Sector, sep = "|"),
-      value = disbursement
-    )
-  )
-     sunburst_chart <- sunburst(country_table, labels = c(Sector, topic), values = disbursement)
-      sunburst_charts[[RecipientName]] <- sunburst_chart
-}
+# for (RecipientName in countries_list) {
+#   select 
+#   country_table <- country_disbursements[country_disbursements$RecipientName == i, ]
+# 
+#   sunburst_data <- with(
+#     country_table,
+#     data.frame(
+#       name = paste(RecipientName, Sector, topic, sep = "|"),
+#       parent = paste(RecipientName, Sector, sep = "|"),
+#       value = disbursement
+#     )
+#   )
+#      sunburst_chart <- sunburst(country_table, labels = c(Sector, topic), values = disbursement)
+#       sunburst_charts[[RecipientName]] <- sunburst_chart
+# }
 ```
 
 ```{r}
@@ -531,10 +531,10 @@ unique(countries_list)
 
 
 ```{r}
-country_disbursements_merged <- country_disbursements %>%
-  filter(Sector != "") %>%
-  mutate(path = paste(Sector, topic, sep="-")) %>%
-  dplyr::select(path, disbursement, RecipientName)
+# country_disbursements_merged <- country_disbursements %>%
+#   filter(Sector != "") %>%
+#   mutate(path = paste(Sector, topic, sep="-")) %>%
+#   dplyr::select(path, disbursement, RecipientName)
 ```
 
 
@@ -628,7 +628,7 @@ for (s in sids) {
   topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
   
   # Create the sunburst plot
-  p <- sunburst(topic_sector_sunburst_merged, legend = FALSE, width = "100%", height = 400)
+  p <- sunburst(topic_sector_sunburst_merged, legend = TRUE, width = "100%", height = 400)
   
   # Save the sunburst plot in the list with the appropriate name
   sunburst_plots[[s]] <- p
@@ -637,7 +637,7 @@ for (s in sids) {
 # Now you have all the sunburst plots stored in the "sunburst_plots" list
 # To access a specific sunburst plot for a country, you can use sunburst_plots[["country_name"]]
 # For example, to display the sunburst plot for Vanuatu:
-sunburst_plots$Fiji
+sunburst_plots$Anguilla
 ```
 
 ```{r}
@@ -663,4 +663,5 @@ server <- function(input, output) {
 # Run the Shiny app
 shinyApp(ui = ui, server = server)
 ```
+
 
