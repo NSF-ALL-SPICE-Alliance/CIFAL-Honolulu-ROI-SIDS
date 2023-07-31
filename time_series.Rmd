@@ -12,6 +12,8 @@ library(here)
 library(plotly)
 library(readxl)
 library(janitor)
+library(ggthemes)
+library(shiny)
 ```
 
 ```{r, include=FALSE, results='hide'}
@@ -105,15 +107,6 @@ shinyApp(ui, server)
 
 
 
-```{r}
-a <- ggplot(activity_clusters_sids_country_sector_year, aes(x = Year,
-                                                       y = disbursement,
-                                                       color = RecipientName)) +
-  geom_line() +
-  theme(legend.position = "none") +
-  theme_minimal()
 
-ggplotly(a)
-```
 
 
