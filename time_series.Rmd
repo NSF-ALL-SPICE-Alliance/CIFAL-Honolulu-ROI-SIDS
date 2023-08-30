@@ -14,6 +14,7 @@ library(readxl)
 library(janitor)
 library(ggthemes)
 library(shiny)
+options(scipen = 99)
 ```
 
 ```{r, include=FALSE, results='hide'}
@@ -82,8 +83,8 @@ server <- function(input, output) {
   
   # Create the line plot
   output$line_plot <- renderPlotly({
-    ggplot(selected_data(), aes(x = Year, y = disbursement, color = Sector)) +
-      geom_line() +
+    ggplot(selected_data(), aes(x = Year, y = disbursement, fill = Sector)) +
+      geom_area() +
       labs(title = "Disbursement by Sector Over Time",
            x = "Year",
            y = "Disbursement",

@@ -3,6 +3,7 @@ title: "SIDS-Focused Analysis of the Results from 'Monitoring global development
 author: "Connor Flynn, Quinn McHenry, Katherine Gonzalez"
 date: "5/5/2023"
 output: html_document
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -721,8 +722,8 @@ server <- function(input, output) {
   
   # Create the line plot
   output$line_plot <- renderPlotly({
-    ggplot(selected_data(), aes(x = Year, y = disbursement, color = Sector)) +
-      geom_line() +
+    ggplot(selected_data(), aes(x = Year, y = disbursement, fill = Sector)) +
+      geom_area() +
       labs(title = "Disbursement by Sector Over Time",
            x = "Year",
            y = "Disbursement",
