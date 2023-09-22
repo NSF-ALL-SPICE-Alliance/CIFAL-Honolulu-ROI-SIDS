@@ -787,5 +787,63 @@ server <- function(input, output) {
 # Run the Shiny app
 shinyApp(ui, server)
 ```
+```{r}
+# UI
+ui <- fluidPage(
+  titlePanel("Interactive Line Chart"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("country", "Select Country", unique(activity_stats_sids$recipient_name)),
+      selectInput("sector", "Select Sector", unique(activity_stats_sids$sector)),
+      selectInput("topic", "Select Topic", NULL)  # Initialize with NULL options
+    ),
+    
+    mainPanel(
+      plotlyOutput("line_chart")
+    )
+  )
+)
+
+# Server
+server <- function(input, output, session) {  # Added 'session' argument
+  
+  # Define a reactive expression for filtering based on sector
+  filtered_data <- reactive({
+    activity_stats_sids %>%
+      filter(recipient_name == input$country,
+             sector == input$sector,
+             topic == input$topic)
+  })
+  
+  # Observe changes in the 'sector' input and update the 'topic' dropdown accordingly
+  observe({
+    topics_for_sector <- unique(activity_stats_sids$topic[activity_stats_sids$sector == input$sector])
+    updateSelectInput(session, "topic", choices = topics_for_sector)
+  })
+  
+  output$line_chart <- renderPlotly({
+    filtered_data <- filtered_data()
+    
+    if (nrow(filtered_data) == 0) {
+      return(NULL)
+    }
+    
+    ggplot(filtered_data, aes(x = year, y = disbursement, color = topic)) +
+      geom_line() +
+      labs(title = paste("Disbursement for", input$topic, "in", input$sector),
+           x = "Year",
+           y = "Disbursement",
+           color = "Topic") +
+      theme_minimal()
+  })
+}
+
+shinyApp(ui, server)
+
+
+# Run the Shiny app
+shinyApp(ui, server)
+```
 
 
