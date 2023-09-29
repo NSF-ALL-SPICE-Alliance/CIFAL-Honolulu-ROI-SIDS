@@ -1,0 +1,118 @@
+---
+title: "Solar | Aid & Indicators"
+author: "Connor Flynn"
+date: "9/14/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(plotly)
+library(readxl)
+library(janitor)
+library(sunburstR)
+library(htmltools)
+library(shiny)
+options(scipen = 99)
+```
+
+
+Import Data from "Monitoring GLobal Aid with Machine Learning"
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
+```
+
+
+```{r, include=FALSE, results='hide'}
+descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
+```
+
+Import Data from SIDS Data Platform - *may normalize for population*
+
+```{r}
+installed_renewable_per_capita <- read_csv(here("energy/indicator/installed_renewable_electricity_generating_capacity_watts_per_capita.csv"), skip = 1)
+```
+
+```{r}
+installed_renewable_per_capita[installed_renewable_per_capita == 'No Data'] <- NA
+```
+
+
+```{r}
+installed_renewable_per_capita_longer <- installed_renewable_per_capita %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "value")
+```
+
+
+
+
+Filter and Join Data from "Monitoring Global Aid with Machine Learning"
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- activity_clusters %>% 
+  mutate(disbursement = USD_Disbursement * 1000000)
+```
+
+```{r, include=FALSE, results='hide'}
+sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
+             'Cook Islands', 'Dominica', 'Dominican Republic', 'Fiji', 'Grenada', 'Guinea-Bissau', 'Guyana', 
+             'Haiti', 'Jamaica', 'Kiribati', 'Maldives', 'Marshall Islands', 'Mauritius', 'Micronesia', 
+             'Montserrat', 'Nauru', 'Niue', 'Palau', 'Papua New Guinea', 'Saint Kitts and Nevis', 'Saint Lucia', 
+             'Saint Vincent and the Grenadines', 'Samoa', 'Sao Tome and Principe', 'Seychelles', 'Solomon Islands', 
+             'Suriname', 'Timor-Leste', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Turks and Caicos Islands', 
+             'Tuvalu', 'Vanuatu')
+```
+
+```{r, include=FALSE, results='hide'}
+colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids<-activity_stats_join %>%
+  filter(RecipientName %in% sids)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids <- activity_stats_sids %>% 
+  clean_names()
+```
+
+*Andrew Join Indicator and Aid Data*
+
+
+
+
+
+
+
+Solar Analyses
+
+```{r}
+activity_stats_sids_solar <- activity_stats_sids %>% 
+  filter(topic == "Solar energy")
+```
+
+
+```{r}
+a <- ggplot(activity_stats_sids_solar, 
+       aes(x = year,
+           y = disbursement,
+           color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+ggplotly(a)
+```
+
