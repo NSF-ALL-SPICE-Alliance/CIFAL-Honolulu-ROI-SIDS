@@ -14,6 +14,7 @@ library(readxl)
 library(janitor)
 library(sunburstR)
 library(htmltools)
+library(dplyr)
 library(shiny)
 options(scipen = 99)
 ```
@@ -46,7 +47,8 @@ installed_renewable_per_capita_longer <- installed_renewable_per_capita %>%
   mutate(across(!Year, as.character)) %>%
   pivot_longer(cols = !Year,
                names_to = "recipient_name",
-               values_to = "value")
+               values_to = "value") %>% 
+  clean_names()
 ```
 
 
@@ -91,10 +93,26 @@ activity_stats_sids <- activity_stats_sids %>%
 ```
 
 *Andrew Join Indicator and Aid Data*
+```{r}
+activity_stats_sids_energy <- activity_stats_sids %>% 
+  filter(sector == "Energy")
+```
 
 
+```{r}
+colnames(installed_renewable_per_capita_longer)[3] <- "Renewable_watts_per_capita" 
+```
 
 
+```{r}
+combined_aid <- left_join(activity_stats_sids_energy, installed_renewable_per_capita_longer, by = "recipient_name")
+```
+
+
+```{r}
+ggplot(combined_aid, aes(x= Renewable_watts_per_capita, y = disbursement)) + 
+  geom_point()
+```
 
 
 
