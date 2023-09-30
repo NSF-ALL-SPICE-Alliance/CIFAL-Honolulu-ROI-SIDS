@@ -1,0 +1,109 @@
+---
+title: "Education Aid Indicator"
+author: "William Kim"
+date: "9/14/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(plotly)
+library(readxl)
+library(janitor)
+library(sunburstR)
+library(htmltools)
+library(dplyr)
+library(shiny)
+options(scipen = 99)
+```
+
+
+Import Data from "Monitoring GLobal Aid with Machine Learning"
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
+```
+
+
+```{r, include=FALSE, results='hide'}
+descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
+```
+
+Import Data from SIDS Data Platform - *may normalize for population*
+
+```{r}
+percent_of_teachers_minimum_qualifications <- read_csv(here("education/indicator/sids_app_development-indicators_sdg-SE_TRA_GRDL-BOTHSEX_recentValue_series.csv"), skip = 1)
+```
+
+```{r}
+percent_of_teachers_minimum_qualifications[percent_of_teachers_minimum_qualifications == 'No Data'] <- NA
+```
+
+
+```{r}
+percent_of_teachers_minimum_qualifications_longer <- percent_of_teachers_minimum_qualifications %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "value") %>% 
+  clean_names()
+```
+
+
+
+
+Filter and Join Data from "Monitoring Global Aid with Machine Learning"
+
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- activity_clusters %>% 
+  mutate(disbursement = USD_Disbursement * 1000000)
+```
+
+```{r, include=FALSE, results='hide'}
+sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
+             'Cook Islands', 'Dominica', 'Dominican Republic', 'Fiji', 'Grenada', 'Guinea-Bissau', 'Guyana', 
+             'Haiti', 'Jamaica', 'Kiribati', 'Maldives', 'Marshall Islands', 'Mauritius', 'Micronesia', 
+             'Montserrat', 'Nauru', 'Niue', 'Palau', 'Papua New Guinea', 'Saint Kitts and Nevis', 'Saint Lucia', 
+             'Saint Vincent and the Grenadines', 'Samoa', 'Sao Tome and Principe', 'Seychelles', 'Solomon Islands', 
+             'Suriname', 'Timor-Leste', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Turks and Caicos Islands', 
+             'Tuvalu', 'Vanuatu')
+```
+
+```{r, include=FALSE, results='hide'}
+colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids<-activity_stats_join %>%
+  filter(RecipientName %in% sids)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids <- activity_stats_sids %>% 
+  clean_names()
+```
+
+*Andrew Join Indicator and Aid Data*
+```{r}
+activity_stats_sids_education <- activity_stats_sids %>% 
+  filter(sector == "Education")
+```
+
+
+```{r}
+colnames(percent_of_teachers_minimum_qualifications_longer)[3] <- "percent_of_teachers_min_qual" 
+```
+
+
+```{r}
+indicator_aid <- left_join(activity_stats_sids_education, percent_of_teachers_minimum_qualifications_longer, by = "recipient_name")
+```
