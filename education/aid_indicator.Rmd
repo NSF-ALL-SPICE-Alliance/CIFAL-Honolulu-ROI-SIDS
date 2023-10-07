@@ -34,13 +34,17 @@ descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"
 Import Data from SIDS Data Platform - *may normalize for population*
 
 ```{r}
-percent_of_teachers_minimum_qualifications <- read_csv(here("education/indicator/sids_app_development-indicators_sdg-SE_TRA_GRDL-BOTHSEX_recentValue_series.csv"), skip = 1)
+percent_of_teachers_minimum_qualifications <- read_csv(here("education/sids_app_perecent_teachers_minimum_qualifications.csv"), skip = 1)
 ```
+
+
+Replace "No Data with NA"
 
 ```{r}
 percent_of_teachers_minimum_qualifications[percent_of_teachers_minimum_qualifications == 'No Data'] <- NA
 ```
 
+Pivot Wider to have Countries in recipient_name column instead of as individual columns
 
 ```{r}
 percent_of_teachers_minimum_qualifications_longer <- percent_of_teachers_minimum_qualifications %>% 
@@ -54,15 +58,22 @@ percent_of_teachers_minimum_qualifications_longer <- percent_of_teachers_minimum
 
 
 
-Filter and Join Data from "Monitoring Global Aid with Machine Learning"
+*Filter and Join Data from "Monitoring Global Aid with Machine Learning"*
 
 
-
+Calculate Disbursement
+- sum_disbursement is all of the aid $ for all topics in a sector for a given year/country
+- disbursement is specific to topics 
+- For a country/year sum disbursement should equal all of the disbursements under that sector
 
 ```{r, include=FALSE, results='hide'}
 activity_clusters <- activity_clusters %>% 
   mutate(disbursement = USD_Disbursement * 1000000)
 ```
+
+
+Create sids list to filter 
+
 
 ```{r, include=FALSE, results='hide'}
 sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
@@ -78,32 +89,64 @@ sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'C
 colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
 ```
 
+
+Join Data to get topic/sector/disbursements 
+
 ```{r, include=FALSE, results='hide'}
 activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
 ```
+
+
+Filter for SIDS
 
 ```{r, include=FALSE, results='hide'}
 activity_stats_sids<-activity_stats_join %>%
   filter(RecipientName %in% sids)
 ```
 
+
+Clean Column Names
+
 ```{r, include=FALSE, results='hide'}
 activity_stats_sids <- activity_stats_sids %>% 
   clean_names()
 ```
 
-*Andrew Join Indicator and Aid Data*
+
+Filter for Education Sector Aid
+
 ```{r}
 activity_stats_sids_education <- activity_stats_sids %>% 
   filter(sector == "Education")
 ```
 
+Drop columns that are not needed for analysis
 
 ```{r}
-colnames(percent_of_teachers_minimum_qualifications_longer)[3] <- "percent_of_teachers_min_qual" 
+activity_stats_sids_education <- activity_stats_sids_education %>% 
+  select(-cluster, -usd_disbursement, -country_code, -incomegroup_name, -matching_purpose_code, -count_activities, -purpose_code, -area, -sum_disbursement)
+```
+
+Change column name so other indicators may be added to dataframe
+
+```{r}
+colnames(percent_of_teachers_minimum_qualifications_longer)[colnames(percent_of_teachers_minimum_qualifications_longer) == "value"] ="percent_of_teachers_min_qual"
+```
+
+Creatively Join
+
+```{r}
+indicator_aid <- activity_stats_sids_education %>%
+  left_join(percent_of_teachers_minimum_qualifications_longer, 
+            by = c("year", "recipient_name"))
 ```
 
 
+
+*Add other Indicators*
+
+Import Data from SIDS Data Platform 
+
 ```{r}
-indicator_aid <- left_join(activity_stats_sids_education, percent_of_teachers_minimum_qualifications_longer, by = "recipient_name")
+percent_of_teachers_minimum_qualifications <- read_csv(here("education/indicator/sids_app_development-indicators_sdg-SE_TRA_GRDL-BOTHSEX_recentValue_series.csv"), skip = 1)
 ```
