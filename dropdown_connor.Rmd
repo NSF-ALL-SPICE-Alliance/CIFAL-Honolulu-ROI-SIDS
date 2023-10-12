@@ -140,6 +140,11 @@ plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
 plot
 ```
 
+
+```{r}
+#write_csv("")
+```
+
 Below, we visualize total disbursements of aid by sector for each SIDS. 
 
 - Hovering the cursor over a section of a bar will display the disbursement and sector for that section. You may also click the boxes of each sector to isolate them and zoom in on SIDS of interest.
@@ -240,6 +245,10 @@ topic_sector_sunburst_merged_all$path <- gsub(" - ", ",", topic_sector_sunburst_
 topic_sector_sunburst_merged_all$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged_all$path)
 ```
 
+```{r}
+sum(topic_sector_sunburst_merged_all$sum_disbursement)
+```
+
 ```{r, echo=FALSE}
 p <- sunburst(topic_sector_sunburst_merged_all, legend=FALSE)
 p
@@ -285,6 +294,9 @@ topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merg
 topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
 ```
 
+```{r}
+sum(topic_sector_sunburst_merged$sum_disbursement)
+```
 
 
 Total Aid Distribution for all SIDS 
