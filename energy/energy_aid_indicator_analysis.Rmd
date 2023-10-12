@@ -268,7 +268,7 @@ print(correlations)
 ```
 ```{r}
 energy_aid_indicators_renewable_watts_relevant_topics_grouped_country <- energy_aid_indicators_renewable_watts_relevant_topics_grouped %>% 
-  filter(recipient_name == "Tonga")  
+  filter(recipient_name == "Cook Islands")  
   
 ggplot(energy_aid_indicators_renewable_watts_relevant_topics_grouped_country, aes(x = year, y = renewable_disbursement)) +
   geom_line()

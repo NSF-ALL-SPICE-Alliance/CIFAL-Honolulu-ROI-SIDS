@@ -1,0 +1,164 @@
+---
+title: "health_indicator_aid"
+output: html_document
+date: "2023-09-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+```
+
+```{r}
+adolescent_birth_rate <- read_csv(here("health/indicators/Adolescent birth rate.csv"))
+```
+
+```{r}
+household_and_ambient_air_pollution_mortality_rate <- read_csv(here("health/indicators/Age-standardized mortality rate attributed to household and ambient air pollution.csv"))
+```
+
+```{r}
+tobacco_use_among_15_years_and_older <- read_csv(here("health/indicators/Age-standardized prevalence of current tobacco use among persons aged 15 years and older.csv"))
+```
+
+```{r}
+alcohol_consumption_per_capita <- read_csv(here("health/indicators/Alcohol consumption per capita (aged 15 years and older) within a calendar year.csv"))
+```
+
+```{r}
+alcohol_use_disorders <- read_csv(here("health/indicators/Alcohol use disorders, 12 month prevalence.csv"))
+```
+
+```{r}
+road_traffic_injuries_death_rate <- read_csv(here("health/indicators/Death rate due to road traffic injuries.csv"))
+```
+
+```{r}
+health_worker_density <- read_csv(here("health/indicators/Health worker density, by type of occupation.csv"))
+```
+
+```{r}
+infant_mortality_rate <- read_csv(here("health/indicators/Infant mortality rate.csv"))
+```
+
+```{r}
+IHR_capacity <- read_csv(here("health/indicators/International Health Regulations (IHR) capacity, by type of IHR capacity.csv"))
+```
+
+```{r}
+malaria_incidence_per_1000 <- read_csv(here("health/indicators/Malaria incidence per 1,000.csv"))
+```
+
+```{r}
+maternal_mortality_ratio <- read_csv(here("health/indicators/Maternal mortality ratio.csv"))
+```
+
+```{r}
+chronic_diseases_mortality_rate <- read_csv(here("health/indicators/Mortality rate attributed to cardiovascular disease, cancer, diabetes or chronic respiratory disease.csv"))
+```
+
+```{r}
+unintentional_poisonings_mortality_rate <- read_csv(here("health/indicators/Mortality rate attributed to unintentional poisonings.csv"))
+```
+
+```{r}
+unsafe_sanitation_mortality_rate <- read_csv(here("health/indicators/Mortality rate attributed to unsafe water, unsafe sanitation and lack of hygiene....csv"))
+```
+
+```{r}
+neonatal_mortality_rate <- read_csv(here("health/indicators/Neonatal mortality rate.csv"))
+```
+
+```{r}
+noncommunicable_diseases_deaths <- read_csv(here("health/indicators/Number of deaths attributed to non-communicable diseases.csv"))
+```
+
+```{r}
+new_HIV_infections_per_1000 <- read_csv(here("health/indicators/Number of new HIV infections per 1000.csv"))
+```
+
+```{r}
+interventions_against_neglected_tropical_diseases <- read_csv(here("health/indicators/Number of people requiring interventions against neglected tropical diseases.csv"))
+```
+
+```{r}
+prevalence_of_hepB <- read_csv(here("health/indicators/Prevalence of hepatitis B surface antigen.csv"))
+```
+
+```{r}
+births_attended_by_skilled_health_personnel <- read_csv(here("health/indicators/Proportion of births attended by skilled health personnel.csv"))
+```
+
+```{r}
+household_expenditures_in_health_10_percent <- read_csv(here("health/indicators/Proportion of population with large household expenditures on health (greater than 10%).csv"))
+```
+
+```{r}
+household_expenditures_in_health_25_percent <- read_csv(here("health/indicators/Proportion of population with large household expenditures on health (greater than 25%).csv"))
+```
+
+```{r}
+access_to_DPT_vaccine <- read_csv(here("health/indicators/Proportion of the target population with access to 3 doses of diphtheria-tetanus-pertussis.csv"))
+```
+
+```{r}
+access_to_affordable_medicines_and_vaccines_HPV <- read_csv(here("health/indicators/Proportion of the target population with access to affordable medicines and vaccines on a sustainable basis, human papillomavirus.csv"))
+```
+
+```{r}
+access_to_measles_vaccine <- read_csv(here("health/indicators/Proportion of the target population with access to measles-containing-vaccine second-dose.csv"))
+```
+
+```{r}
+access_to_pneumococcal_vaccine <- read_csv(here("health/indicators/Proportion of the target population with access to pneumococcal conjugate 3rd dose.csv"))
+```
+
+```{r}
+family_planning_for_women_of_reproductive_age <- read_csv(here("health/indicators/Proportion of women of reproductive age (aged 15-49 years) who have their need for family planning satisfied with modern methods.csv"))
+```
+
+```{r}
+suicide_mortality_rate <- read_csv(here("health/indicators/Suicide mortality rate.csv"))
+```
+
+```{r}
+development_assistance_gross_disbursement <- read_csv(here("health/indicators/Total official development assistance to medical research and basic heath sectors, gross disbursement, by recipient countries (.csv"))
+```
+
+```{r}
+development_assistance_net_disbursement <- read_csv(here("health/indicators/Total official development assistance to medical research and basic heath sectors, net disbursement, by recipient countries.csv"))
+```
+
+```{r}
+TB_incidence_per_100000 <- read_csv(here("health/indicators/Tuberculosis incidence per 100,000.csv"))
+```
+
+```{r}
+under_five_mortality_rate <- read_csv(here("health/indicators/Under-five mortality rate.csv"))
+```
+
+```{r}
+universal_health_coverage <- read_csv(here("health/indicators/Universal health coverage (UHC) service coverage index.csv"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
