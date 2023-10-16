@@ -268,7 +268,7 @@ print(correlations)
 ```
 ```{r}
 energy_aid_indicators_renewable_watts_relevant_topics_grouped_country <- energy_aid_indicators_renewable_watts_relevant_topics_grouped %>% 
-  filter(recipient_name == "Cook Islands")  
+  filter(recipient_name == "Tonga")  
   
 ggplot(energy_aid_indicators_renewable_watts_relevant_topics_grouped_country, aes(x = year, y = renewable_disbursement)) +
   geom_line()
@@ -285,10 +285,38 @@ Average SIDS Renewable watts per capita per year with renewable disbursement (cc
 Does the most change in Renewable Watts Per Capita mean the most money
 
 ```{r}
-# most_change_most_aid <- energy_aid_indicators_renewable_watts_relevant_topics_grouped_country %>% 
-#   group_by(recipient_name) %>% 
+all_sids_aid_watts <- energy_aid_indicators_renewable_watts_relevant_topics_grouped %>% 
+  group_by(year) %>% 
+  summarise(sum_aid = sum(renewable_disbursement),
+            sum_watts = sum(Renewable_watts_per_capita, na.rm = TRUE))
+
   
 ```
 
 
 
+```{r}
+ggplot(all_sids_aid_watts, aes(x = year, y = sum_aid)) +
+  geom_line()
+
+ggplot(all_sids_aid_watts, aes(x = year, y = sum_watts)) +
+  geom_line()
+```
+```{r}
+watts_aid_plot <- ggplot(all_sids_aid_watts, aes(x = sum_aid, y = sum_watts, label = year)) +
+  geom_point() +
+  geom_smooth()
+ggplotly(watts_aid_plot)
+
+lm(sum_watts ~ sum_aid, all_sids_aid_watts)
+```
+
+
+
+For Andrew:
+
+Are SIDS who get the most funding for coal and oil topics the most stagnant in renewable watts per capita over time
+
+Can we add temporal lag analysis (ccf package/function form video) for 
+- All SIDS
+- Each SIDS
