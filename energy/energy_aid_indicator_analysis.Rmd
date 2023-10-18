@@ -17,6 +17,7 @@ library(htmltools)
 library(dplyr)
 library(shiny)
 library(tseries)
+library(astsa)
 options(scipen = 99)
 ```
 
@@ -320,3 +321,45 @@ Are SIDS who get the most funding for coal and oil topics the most stagnant in r
 Can we add temporal lag analysis (ccf package/function form video) for 
 - All SIDS
 - Each SIDS
+
+```{r}
+indices_to_extract <- c("Oil-fired electric power plants")
+
+indices_to_extract2 <- c("Coal-fired electric power plants")
+
+```
+
+```{r}
+oil_funding <- subset(energy_aid_indicators, topic %in% indices_to_extract)
+
+coal_funding <- subset(energy_aid_indicators, topic %in% indices_to_extract2)
+```
+
+
+```{r}
+print(oil_funding)
+
+```
+
+```{r}
+data <- oil_funding %>%
+  mutate(Lagged_renewable_watts_per_capita = lag(Renewable_watts_per_capita, n = 1))
+
+```
+
+```{r}
+ggplot(data, aes(x = year)) +
+  geom_line(aes(y = disbursement), color = "blue", size = 1) +
+  geom_line(aes(x = year, y = Lagged_renewable_watts_per_capita), color = "red", size = 1) +
+  labs(title = "Lag Analysis", x = "Year", y = "Values")
+
+```
+
+
+
+```{r}
+ccf_result <- ccf(oil_funding$disbursement, oil_funding$Renewable_watts_per_capita, lag.max = 10, na.action = na.pass)  # Adjust the lag.max as needed
+```
+
+
+
