@@ -361,5 +361,37 @@ ggplot(data, aes(x = year)) +
 ccf_result <- ccf(oil_funding$disbursement, oil_funding$Renewable_watts_per_capita, lag.max = 10, na.action = na.pass)  # Adjust the lag.max as needed
 ```
 
+```{r}
+energy_aid_indicators_renewable_watts_relevant_topics_graph <- energy_aid_indicators_renewable_watts_relevant_topics %>%
+  group_by(year, topic) %>%
+  summarise(topic_renewable_watts_per_capita = sum(Renewable_watts_per_capita),
+            recipient_name = first(recipient_name),
+            disbursement = first(disbursement),
+            sum_disbursement = sum(sum_disbursement))
+
+
+
+
+  ggplot(data = energy_aid_indicators_renewable_watts_relevant_topics, aes(x = year, y = Renewable_watts_per_capita, color = topic)) +
+    geom_point() +
+  theme_minimal()
+```
+
+```{r}
+# Load the necessary packages if not already loaded
+library(ggplot2)
+
+# Calculate the maximum values for each topic while preserving "year" and "region" columns
+max_values <- aggregate(data = energy_aid_indicators_renewable_watts_relevant_topics, 
+                        Renewable_watts_per_capita ~ topic + year + recipient_name + sector + disbursement + sum_disbursement, FUN = max)
+
+# Create the ggplot visualization using max_values
+ggplot(data = max_values, aes(x = year, y = Renewable_watts_per_capita, color = topic)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal()
+
+
+```
 
 
