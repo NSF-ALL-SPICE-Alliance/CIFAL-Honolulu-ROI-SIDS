@@ -269,7 +269,7 @@ print(correlations)
 ```
 ```{r}
 energy_aid_indicators_renewable_watts_relevant_topics_grouped_country <- energy_aid_indicators_renewable_watts_relevant_topics_grouped %>% 
-  filter(recipient_name == "Tonga")  
+  filter(recipient_name == "Anguilla")  
   
 ggplot(energy_aid_indicators_renewable_watts_relevant_topics_grouped_country, aes(x = year, y = renewable_disbursement)) +
   geom_line()
@@ -341,19 +341,7 @@ print(oil_funding)
 
 ```
 
-```{r}
-data <- oil_funding %>%
-  mutate(Lagged_renewable_watts_per_capita = lag(Renewable_watts_per_capita, n = 1))
 
-```
-
-```{r}
-ggplot(data, aes(x = year)) +
-  geom_line(aes(y = disbursement), color = "blue", size = 1) +
-  geom_line(aes(x = year, y = Lagged_renewable_watts_per_capita), color = "red", size = 1) +
-  labs(title = "Lag Analysis", x = "Year", y = "Values")
-
-```
 
 
 
@@ -362,19 +350,17 @@ ccf_result <- ccf(oil_funding$disbursement, oil_funding$Renewable_watts_per_capi
 ```
 
 ```{r}
-energy_aid_indicators_renewable_watts_relevant_topics_graph <- energy_aid_indicators_renewable_watts_relevant_topics %>%
-  group_by(year, topic) %>%
-  summarise(topic_renewable_watts_per_capita = sum(Renewable_watts_per_capita),
-            recipient_name = first(recipient_name),
-            disbursement = first(disbursement),
-            sum_disbursement = sum(sum_disbursement))
+
+energy_aid_indicators_renewable_watts_relevant_topics_max <- energy_aid_indicators_renewable_watts_relevant_topics %>% 
+  group_by(recipient_name) %>% 
+  slice(which.max(disbursement))
 
 
-
-
-  ggplot(data = energy_aid_indicators_renewable_watts_relevant_topics, aes(x = year, y = Renewable_watts_per_capita, color = topic)) +
+renewable_topics_plot <-  ggplot(data = energy_aid_indicators_renewable_watts_relevant_topics, aes(x = year, y = Renewable_watts_per_capita, color = topic, label = recipient_name, size = disbursement)) +
     geom_point() +
   theme_minimal()
+
+ggplotly(renewable_topics_plot)
 ```
 
 ```{r}

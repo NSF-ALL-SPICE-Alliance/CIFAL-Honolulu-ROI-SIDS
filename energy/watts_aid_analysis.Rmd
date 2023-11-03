@@ -18,6 +18,7 @@ library(dplyr)
 library(shiny)
 library(tseries)
 library(astsa)
+library(ggpubr)
 options(scipen = 99)
 ```
 
@@ -471,6 +472,16 @@ renewable_aid_watts_unstandardized <- full_join(energy_aid_indicators_renewable_
 renewable_aid_watts_unstandardized <- renewable_aid_watts_unstandardized %>% 
   mutate(renewable_watts = Renewable_watts_per_capita * population)
 ```
+
+
+```{r}
+watts_plot <- ggplot(renewable_aid_watts_unstandardized, aes(x = year, y = renewable_watts, color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(watts_plot)
+```
+
 
 
 ```{r}
