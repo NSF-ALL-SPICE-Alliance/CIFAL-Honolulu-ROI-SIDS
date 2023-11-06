@@ -143,9 +143,33 @@ universal_health_coverage <- read_csv(here("health/indicators/Universal health c
 ```
 
 
+```{r}
 
 
+maternal_mortality_ratio_longer <- maternal_mortality_ratio %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "maternal_mortality_ratio") %>% 
+  clean_names()
+```
 
+
+```{r}
+maternal_mortality_ratio_longer[maternal_mortality_ratio_longer == 'No Data'] <- NA
+
+maternal_mortality_ratio_longer$maternal_mortality_ratio <- as.numeric(maternal_mortality_ratio_longer$maternal_mortality_ratio)
+```
+
+
+```{r}
+maternal_mortality_plot <- ggplot(maternal_mortality_ratio_longer, aes(x = year, y = maternal_mortality_ratio, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(maternal_mortality_plot)
+```
 
 
 
