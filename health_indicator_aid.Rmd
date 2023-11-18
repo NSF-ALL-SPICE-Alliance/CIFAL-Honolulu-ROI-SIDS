@@ -8,6 +8,9 @@ date: "2023-09-28"
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
+library(janitor)
+library(plotly)
+library(readxl)
 ```
 
 ```{r}
@@ -1149,4 +1152,94 @@ IHR_capacity_plot <- ggplot(IHR_capacity_longer, aes(x = year, y = ihr_capacity,
 ggplotly(IHR_capacity_plot)
 ```
 
+
+
+
+
+Let's look at aid for maternal health care
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- read_csv(here("data/activity_cluster_data.csv"))
+```
+
+```{r, include=FALSE, results='hide'}
+descriptive_stats <- read_excel(here("data/descriptive_statistics_clusters.xlsx"))
+```
+
+
+
+```{r, include=FALSE, results='hide'}
+activity_clusters <- activity_clusters %>% 
+  mutate(disbursement = USD_Disbursement * 1000000)
+```
+
+```{r, include=FALSE, results='hide'}
+sids <- c('Anguilla', 'Antigua and Barbuda', 'Bahrain', 'Barbados', 'Belize', 'Cabo Verde', 'Comoros', 
+             'Cook Islands', 'Dominica', 'Dominican Republic', 'Fiji', 'Grenada', 'Guinea-Bissau', 'Guyana', 
+             'Haiti', 'Jamaica', 'Kiribati', 'Maldives', 'Marshall Islands', 'Mauritius', 'Micronesia', 
+             'Montserrat', 'Nauru', 'Niue', 'Palau', 'Papua New Guinea', 'Saint Kitts and Nevis', 'Saint Lucia', 
+             'Saint Vincent and the Grenadines', 'Samoa', 'Sao Tome and Principe', 'Seychelles', 'Solomon Islands', 
+             'Suriname', 'Timor-Leste', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Turks and Caicos Islands', 
+             'Tuvalu', 'Vanuatu')
+```
+
+```{r, include=FALSE, results='hide'}
+colnames(activity_clusters)[colnames(activity_clusters) == "cluster"] ="Cluster"
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_join<- full_join(activity_clusters, descriptive_stats, by='Cluster')
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids<-activity_stats_join %>%
+  filter(RecipientName %in% sids)
+```
+
+```{r, include=FALSE, results='hide'}
+activity_stats_sids <- activity_stats_sids %>% 
+  clean_names()
+```
+
+
+```{r}
+activity_stats_sids_maternal_healthcare <- activity_stats_sids %>% 
+  filter(topic == "Maternal healthcare")
+```
+
+
+```{r}
+activity_stats_sids_maternal_healthcare <- activity_stats_sids_maternal_healthcare %>% 
+  select(year, recipient_name, topic, disbursement)
+```
+
+
+```{r}
+indicator_maternal_mortality_aid <- activity_stats_sids_maternal_healthcare %>%
+  left_join(maternal_mortality_ratio_longer, 
+            by = c("year", "recipient_name"))
+```
+
+
+Analysis
+
+All SIDS Together
+
+```{r}
+indicator_maternal_mortality_aid_all_sids <- indicator_maternal_mortality_aid %>% 
+  group_by(year) %>% 
+  summarise(total_sids_disburement_maternal_healthcare = sum(disbursement, na.rm = TRUE),
+            mean_maternal_mortality_ratio = mean(maternal_mortality_ratio, na.rm = TRUE))
+```
+
+```{r}
+mean_maternal_mortality_sum_aid_plot <- ggplot(indicator_maternal_mortality_aid_all_sids, aes(x = total_sids_disburement_maternal_healthcare, 
+                                                      y = mean_maternal_mortality_ratio,
+                                                      color = year)) +
+  geom_point() 
+
+ggplotly(mean_maternal_mortality_sum_aid_plot)
+
+
+```
 
