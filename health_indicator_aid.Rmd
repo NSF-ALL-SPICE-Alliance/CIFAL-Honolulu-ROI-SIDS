@@ -1,0 +1,1152 @@
+---
+title: "health_indicator_aid"
+output: html_document
+date: "2023-09-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+```
+
+```{r}
+adolescent_birth_rate <- read_csv(here("health/indicators/Adolescent birth rate.csv"))
+```
+
+```{r}
+household_and_ambient_air_pollution_mortality_rate <- read_csv(here("health/indicators/Age-standardized mortality rate attributed to household and ambient air pollution.csv"))
+```
+
+```{r}
+tobacco_use_among_15_years_and_older <- read_csv(here("health/indicators/Age-standardized prevalence of current tobacco use among persons aged 15 years and older.csv"))
+```
+
+```{r}
+alcohol_consumption_per_capita <- read_csv(here("health/indicators/Alcohol consumption per capita (aged 15 years and older) within a calendar year.csv"))
+```
+
+```{r}
+alcohol_use_disorders <- read_csv(here("health/indicators/Alcohol use disorders, 12 month prevalence.csv"))
+```
+
+```{r}
+road_traffic_injuries_death_rate <- read_csv(here("health/indicators/Death rate due to road traffic injuries.csv"))
+```
+
+```{r}
+health_worker_density <- read_csv(here("health/indicators/Health worker density, by type of occupation.csv"))
+```
+
+```{r}
+infant_mortality_rate <- read_csv(here("health/indicators/Infant mortality rate.csv"))
+```
+
+```{r}
+IHR_capacity <- read_csv(here("health/indicators/International Health Regulations (IHR) capacity, by type of IHR capacity.csv"))
+```
+
+```{r}
+malaria_incidence_per_1000 <- read_csv(here("health/indicators/Malaria incidence per 1,000.csv"))
+```
+
+```{r}
+maternal_mortality_ratio <- read_csv(here("health/indicators/Maternal mortality ratio.csv"))
+```
+
+```{r}
+chronic_diseases_mortality_rate <- read_csv(here("health/indicators/Mortality rate attributed to cardiovascular disease, cancer, diabetes or chronic respiratory disease.csv"))
+```
+
+```{r}
+unintentional_poisonings_mortality_rate <- read_csv(here("health/indicators/Mortality rate attributed to unintentional poisonings.csv"))
+```
+
+```{r}
+unsafe_sanitation_mortality_rate <- read_csv(here("health/indicators/Mortality rate attributed to unsafe water, unsafe sanitation and lack of hygiene....csv"))
+```
+
+```{r}
+neonatal_mortality_rate <- read_csv(here("health/indicators/Neonatal mortality rate.csv"))
+```
+
+```{r}
+noncommunicable_diseases_deaths <- read_csv(here("health/indicators/Number of deaths attributed to non-communicable diseases.csv"))
+```
+
+```{r}
+new_HIV_infections_per_1000 <- read_csv(here("health/indicators/Number of new HIV infections per 1000.csv"))
+```
+
+```{r}
+interventions_against_neglected_tropical_diseases <- read_csv(here("health/indicators/Number of people requiring interventions against neglected tropical diseases.csv"))
+```
+
+```{r}
+prevalence_of_hepB <- read_csv(here("health/indicators/Prevalence of hepatitis B surface antigen.csv"))
+```
+
+```{r}
+births_attended_by_skilled_health_personnel <- read_csv(here("health/indicators/Proportion of births attended by skilled health personnel.csv"))
+```
+
+```{r}
+household_expenditures_in_health_10_percent <- read_csv(here("health/indicators/Proportion of population with large household expenditures on health (greater than 10%).csv"))
+```
+
+```{r}
+household_expenditures_in_health_25_percent <- read_csv(here("health/indicators/Proportion of population with large household expenditures on health (greater than 25%).csv"))
+```
+
+```{r}
+access_to_DPT_vaccine <- read_csv(here("health/indicators/Proportion of the target population with access to 3 doses of diphtheria-tetanus-pertussis.csv"))
+```
+
+```{r}
+access_to_affordable_medicines_and_vaccines_HPV <- read_csv(here("health/indicators/Proportion of the target population with access to affordable medicines and vaccines on a sustainable basis, human papillomavirus.csv"))
+```
+
+```{r}
+access_to_measles_vaccine <- read_csv(here("health/indicators/Proportion of the target population with access to measles-containing-vaccine second-dose.csv"))
+```
+
+```{r}
+access_to_pneumococcal_vaccine <- read_csv(here("health/indicators/Proportion of the target population with access to pneumococcal conjugate 3rd dose.csv"))
+```
+
+```{r}
+family_planning_for_women_of_reproductive_age <- read_csv(here("health/indicators/Proportion of women of reproductive age (aged 15-49 years) who have their need for family planning satisfied with modern methods.csv"))
+```
+
+```{r}
+suicide_mortality_rate <- read_csv(here("health/indicators/Suicide mortality rate.csv"))
+```
+
+```{r}
+development_assistance_gross_disbursement <- read_csv(here("health/indicators/Total official development assistance to medical research and basic heath sectors, gross disbursement, by recipient countries (.csv"))
+```
+
+```{r}
+development_assistance_net_disbursement <- read_csv(here("health/indicators/Total official development assistance to medical research and basic heath sectors, net disbursement, by recipient countries.csv"))
+```
+
+```{r}
+TB_incidence_per_100000 <- read_csv(here("health/indicators/Tuberculosis incidence per 100,000.csv"))
+```
+
+```{r}
+under_five_mortality_rate <- read_csv(here("health/indicators/Under-five mortality rate.csv"))
+```
+
+```{r}
+universal_health_coverage <- read_csv(here("health/indicators/Universal health coverage (UHC) service coverage index.csv"))
+```
+
+
+
+
+
+Target 3.1 Plots - Maternal mortality ratio and proportions of births attended by skilled health personnel
+
+
+
+
+
+```{r}
+
+
+maternal_mortality_ratio_longer <- maternal_mortality_ratio %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "maternal_mortality_ratio") %>% 
+  clean_names()
+```
+
+
+```{r}
+maternal_mortality_ratio_longer[maternal_mortality_ratio_longer == 'No Data'] <- NA
+
+maternal_mortality_ratio_longer$maternal_mortality_ratio <- as.numeric(maternal_mortality_ratio_longer$maternal_mortality_ratio)
+```
+
+
+```{r}
+maternal_mortality_plot <- ggplot(maternal_mortality_ratio_longer, aes(x = year, y = maternal_mortality_ratio, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(maternal_mortality_plot)
+```
+
+```{r}
+
+
+births_attended_by_skilled_health_personnel_longer <- births_attended_by_skilled_health_personnel %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "births_attended_by_health_personnel") %>% 
+  clean_names()
+```
+
+
+```{r}
+births_attended_by_skilled_health_personnel_longer[births_attended_by_skilled_health_personnel_longer == 'No Data'] <- NA
+
+births_attended_by_skilled_health_personnel_longer$births_attended_by_health_personnel <- as.numeric(births_attended_by_skilled_health_personnel_longer$births_attended_by_health_personnel)
+```
+
+
+```{r}
+births_attended_by_health_personnel_plot <- ggplot(births_attended_by_skilled_health_personnel_longer, aes(x = year, y = births_attended_by_health_personnel, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(births_attended_by_health_personnel_plot)
+```
+
+
+
+
+
+Target 3.2 Plots - Infant mortality rate, neonatal mortality rate, and under-five mortality rate 
+
+
+
+
+```{r}
+
+
+infant_mortality_rate_longer <- infant_mortality_rate %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "infant_mortality_rate") %>% 
+  clean_names()
+```
+
+
+```{r}
+infant_mortality_rate_longer[infant_mortality_rate_longer == 'No Data'] <- NA
+
+infant_mortality_rate_longer$infant_mortality_rate <- as.numeric(infant_mortality_rate_longer$infant_mortality_rate)
+```
+
+
+```{r}
+infant_mortality_plot <- ggplot(infant_mortality_rate_longer, aes(x = year, y = infant_mortality_rate, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(infant_mortality_plot)
+```
+
+
+```{r}
+
+
+neonatal_mortality_rate_longer <- neonatal_mortality_rate %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "neonatal_mortality_rate") %>% 
+  clean_names()
+```
+
+
+```{r}
+neonatal_mortality_rate_longer[neonatal_mortality_rate_longer == 'No Data'] <- NA
+
+neonatal_mortality_rate_longer$neonatal_mortality_rate <- as.numeric(neonatal_mortality_rate_longer$neonatal_mortality_rate)
+```
+
+
+```{r}
+neonatal_mortality_plot <- ggplot(neonatal_mortality_rate_longer, aes(x = year, y = neonatal_mortality_rate, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(neonatal_mortality_plot)
+```
+
+
+```{r}
+
+
+under_five_mortality_rate_longer <- under_five_mortality_rate %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "under_five_mortality_rate") %>% 
+  clean_names()
+```
+
+
+```{r}
+under_five_mortality_rate_longer[under_five_mortality_rate_longer == 'No Data'] <- NA
+
+under_five_mortality_rate_longer$under_five_mortality_rate <- as.numeric(under_five_mortality_rate_longer$under_five_mortality_rate)
+```
+
+
+```{r}
+under_five_mortality_plot <- ggplot(under_five_mortality_rate_longer, aes(x = year, y = under_five_mortality_rate, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(under_five_mortality_plot)
+```
+
+
+
+
+
+
+Target 3.3 Plots - Malaria incidence per 1,000, number of new HIV infections per 1,000, number of people requiring interventions against neglected tropical diseases, prevalence of hepatitis B surface antigen, and tuberculosis incidence per 100,000
+
+
+
+
+
+```{r}
+
+
+malaria_incidence_per_1000_longer <- malaria_incidence_per_1000 %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "malaria_incidence_per_1000") %>% 
+  clean_names()
+```
+
+
+```{r}
+malaria_incidence_per_1000_longer[malaria_incidence_per_1000_longer == 'No Data'] <- NA
+
+malaria_incidence_per_1000_longer$malaria_incidence_per_1000 <- as.numeric(malaria_incidence_per_1000_longer$malaria_incidence_per_1000)
+```
+
+
+```{r}
+malaria_incidence_plot <- ggplot(malaria_incidence_per_1000_longer, aes(x = year, y = malaria_incidence_per_1000, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(malaria_incidence_plot)
+```
+
+```{r}
+
+
+new_HIV_infections_per_1000_longer <- new_HIV_infections_per_1000 %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "new_HIV_infections_per_1000") %>% 
+  clean_names()
+```
+
+
+```{r}
+new_HIV_infections_per_1000_longer[new_HIV_infections_per_1000_longer == 'No Data'] <- NA
+
+new_HIV_infections_per_1000_longer$new_hiv_infections_per_1000 <- as.numeric(new_HIV_infections_per_1000_longer$new_hiv_infections_per_1000)
+```
+
+
+```{r}
+new_HIV_infections_plot <- ggplot(new_HIV_infections_per_1000_longer, aes(x = year, y = new_hiv_infections_per_1000, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(new_HIV_infections_plot)
+```
+
+
+```{r}
+
+
+interventions_against_neglected_tropical_diseases_longer <- interventions_against_neglected_tropical_diseases %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "interventions_against_neglected_tropical_diseases") %>% 
+  clean_names()
+```
+
+
+```{r}
+interventions_against_neglected_tropical_diseases_longer[interventions_against_neglected_tropical_diseases_longer == 'No Data'] <- NA
+
+interventions_against_neglected_tropical_diseases_longer$interventions_against_neglected_tropical_diseases <- as.numeric(interventions_against_neglected_tropical_diseases_longer$interventions_against_neglected_tropical_diseases)
+```
+
+
+```{r}
+interventions_against_neglected_tropical_diseases_plot <- ggplot(interventions_against_neglected_tropical_diseases_longer, aes(x = year, y = interventions_against_neglected_tropical_diseases, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(interventions_against_neglected_tropical_diseases_plot)
+```
+
+
+```{r}
+
+
+prevalence_of_hepB_longer <- prevalence_of_hepB %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "prevalence_of_hepB") %>% 
+  clean_names()
+```
+
+
+```{r}
+prevalence_of_hepB_longer[prevalence_of_hepB_longer == 'No Data'] <- NA
+
+prevalence_of_hepB_longer$prevalence_of_hep_b <- as.numeric(prevalence_of_hepB_longer$prevalence_of_hep_b)
+```
+
+
+```{r}
+prevalence_of_hepB_plot <- ggplot(prevalence_of_hepB_longer, aes(x = year, y = prevalence_of_hep_b, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(prevalence_of_hepB_plot)
+```
+
+
+```{r}
+
+
+TB_incidence_per_100000_longer <- TB_incidence_per_100000 %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "TB_incidence_per_100000") %>% 
+  clean_names()
+```
+
+
+```{r}
+prevalence_of_hepB_longer[prevalence_of_hepB_longer == 'No Data'] <- NA
+
+prevalence_of_hepB_longer$prevalence_of_hep_b <- as.numeric(prevalence_of_hepB_longer$prevalence_of_hep_b)
+```
+
+
+```{r}
+prevalence_of_hepB_plot <- ggplot(prevalence_of_hepB_longer, aes(x = year, y = prevalence_of_hep_b, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(prevalence_of_hepB_plot)
+```
+
+
+
+
+Target 3.4 Plots - Mortality rate attributed to chronic diseases (CV diseases, cancer, diabetes, chronic respiratory disease), Number of deaths attributed to non-communicable diseases, and Suicide mortality rate.
+
+
+
+
+```{r}
+
+
+chronic_diseases_mortality_rate_longer <- chronic_diseases_mortality_rate %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "chronic_diseases_mortality_rate") %>% 
+  clean_names()
+```
+
+
+```{r}
+chronic_diseases_mortality_rate_longer[chronic_diseases_mortality_rate_longer == 'No Data'] <- NA
+
+chronic_diseases_mortality_rate_longer$chronic_diseases_mortality_rate <- as.numeric(chronic_diseases_mortality_rate_longer$chronic_diseases_mortality_rate)
+```
+
+
+```{r}
+chronic_diseases_mortality_plot <- ggplot(chronic_diseases_mortality_rate_longer, aes(x = year, y = chronic_diseases_mortality_rate, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(chronic_diseases_mortality_plot)
+```
+
+
+
+```{r}
+
+
+noncommunicable_diseases_deaths_longer <- noncommunicable_diseases_deaths %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "noncommunicable_diseases_deaths") %>% 
+  clean_names()
+```
+
+
+```{r}
+noncommunicable_diseases_deaths_longer[noncommunicable_diseases_deaths_longer == 'No Data'] <- NA
+
+noncommunicable_diseases_deaths_longer$noncommunicable_diseases_deaths <- as.numeric(noncommunicable_diseases_deaths_longer$noncommunicable_diseases_deaths)
+```
+
+
+```{r}
+noncommunicable_diseases_deaths_plot <- ggplot(noncommunicable_diseases_deaths_longer, aes(x = year, y = noncommunicable_diseases_deaths, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(noncommunicable_diseases_deaths_plot)
+```
+
+
+
+```{r}
+
+
+suicide_mortality_rate_longer <- suicide_mortality_rate %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "suicide_mortality_rate") %>% 
+  clean_names()
+```
+
+
+```{r}
+suicide_mortality_rate_longer[suicide_mortality_rate_longer == 'No Data'] <- NA
+
+suicide_mortality_rate_longer$suicide_mortality_rate <- as.numeric(suicide_mortality_rate_longer$suicide_mortality_rate)
+```
+
+
+```{r}
+suicide_mortality_rate_plot <- ggplot(suicide_mortality_rate_longer, aes(x = year, y = suicide_mortality_rate, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(suicide_mortality_rate_plot)
+```
+
+
+
+
+
+
+
+
+Target 3.5 Plots - Alcohol consumption per capita within a calendar year
+
+
+
+
+```{r}
+
+
+alcohol_consumption_per_capita_longer <- alcohol_consumption_per_capita %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "alcohol_consumption_per_capita") %>% 
+  clean_names()
+```
+
+
+```{r}
+alcohol_consumption_per_capita_longer[alcohol_consumption_per_capita_longer == 'No Data'] <- NA
+
+alcohol_consumption_per_capita_longer$alcohol_consumption_per_capita <- as.numeric(alcohol_consumption_per_capita_longer$alcohol_consumption_per_capita)
+```
+
+
+```{r}
+alcohol_consumption_per_capita_plot <- ggplot(alcohol_consumption_per_capita_longer, aes(x = year, y = alcohol_consumption_per_capita, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(alcohol_consumption_per_capita_plot)
+```
+
+
+
+
+
+Target 3.6 - Death rate due to road traffic injuries 
+
+
+
+```{r}
+
+
+road_traffic_injuries_death_rate_longer <- road_traffic_injuries_death_rate %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "road_traffic_injuries_death_rate") %>% 
+  clean_names()
+```
+
+
+```{r}
+road_traffic_injuries_death_rate_longer[road_traffic_injuries_death_rate_longer == 'No Data'] <- NA
+
+road_traffic_injuries_death_rate_longer$road_traffic_injuries_death_rate <- as.numeric(road_traffic_injuries_death_rate_longer$road_traffic_injuries_death_rate)
+```
+
+
+```{r}
+road_traffic_injuries_death_rate_plot <- ggplot(road_traffic_injuries_death_rate_longer, aes(x = year, y = road_traffic_injuries_death_rate, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(road_traffic_injuries_death_rate_plot)
+```
+
+
+
+
+Target 3.7 Plots - Adolescent birth rate and Proportion of women of reproductive age who have their need for family planning satisfied with modern methods. 
+
+
+```{r}
+
+
+adolescent_birth_rate_longer <- adolescent_birth_rate %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "adolescent_birth_rate") %>% 
+  clean_names()
+```
+
+
+```{r}
+adolescent_birth_rate_longer[adolescent_birth_rate_longer == 'No Data'] <- NA
+
+adolescent_birth_rate_longer$adolescent_birth_rate <- as.numeric(adolescent_birth_rate_longer$adolescent_birth_rate)
+```
+
+
+```{r}
+adolescent_birth_rate_plot <- ggplot(adolescent_birth_rate_longer, aes(x = year, y = adolescent_birth_rate, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(adolescent_birth_rate_plot)
+```
+
+
+```{r}
+
+
+family_planning_for_women_of_reproductive_age_longer <- family_planning_for_women_of_reproductive_age %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "family_planning_for_women_of_reproductive_age") %>% 
+  clean_names()
+```
+
+
+```{r}
+family_planning_for_women_of_reproductive_age_longer[family_planning_for_women_of_reproductive_age_longer == 'No Data'] <- NA
+
+family_planning_for_women_of_reproductive_age_longer$family_planning_for_women_of_reproductive_age <- as.numeric(family_planning_for_women_of_reproductive_age_longer$family_planning_for_women_of_reproductive_age)
+```
+
+
+```{r}
+family_planning_for_women_of_reproductive_age_plot <- ggplot(family_planning_for_women_of_reproductive_age_longer, aes(x = year, y = family_planning_for_women_of_reproductive_age, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(family_planning_for_women_of_reproductive_age_plot)
+```
+
+
+
+
+
+Target 3.8 Plots - Proportion of population with large houeshold expenditures on health (greater than 10%) as a share of total household expenditure or income, Proportion of population with large houeshold expenditures on health (greater than 25%) as a share of total household expenditure or income, Universal health coverage service coverage index. 
+
+
+
+```{r}
+
+
+household_expenditures_in_health_10_percent_longer <- household_expenditures_in_health_10_percent %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "household_expenditures_in_health_10_percent") %>% 
+  clean_names()
+```
+
+
+```{r}
+household_expenditures_in_health_10_percent_longer[household_expenditures_in_health_10_percent_longer == 'No Data'] <- NA
+
+household_expenditures_in_health_10_percent_longer$household_expenditures_in_health_10_percent <- as.numeric(household_expenditures_in_health_10_percent_longer$household_expenditures_in_health_10_percent)
+```
+
+
+```{r}
+household_expenditures_in_health_10_percent_plot <- ggplot(household_expenditures_in_health_10_percent_longer, aes(x = year, y = household_expenditures_in_health_10_percent, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(household_expenditures_in_health_10_percent_plot)
+```
+
+
+
+
+```{r}
+
+
+household_expenditures_in_health_25_percent_longer <- household_expenditures_in_health_25_percent %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "household_expenditures_in_health_25_percent") %>% 
+  clean_names()
+```
+
+
+```{r}
+household_expenditures_in_health_25_percent_longer[household_expenditures_in_health_25_percent_longer == 'No Data'] <- NA
+
+household_expenditures_in_health_25_percent_longer$household_expenditures_in_health_25_percent <- as.numeric(household_expenditures_in_health_25_percent_longer$household_expenditures_in_health_25_percent)
+```
+
+
+```{r}
+household_expenditures_in_health_25_percent_plot <- ggplot(household_expenditures_in_health_25_percent_longer, aes(x = year, y = household_expenditures_in_health_25_percent, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(household_expenditures_in_health_25_percent_plot)
+```
+
+
+```{r}
+
+
+universal_health_coverage_longer <- universal_health_coverage %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "universal_health_coverage") %>% 
+  clean_names()
+```
+
+
+```{r}
+universal_health_coverage_longer[universal_health_coverage_longer == 'No Data'] <- NA
+
+universal_health_coverage_longer$universal_health_coverage <- as.numeric(universal_health_coverage_longer$universal_health_coverage)
+```
+
+
+```{r}
+universal_health_coverage_plot <- ggplot(universal_health_coverage_longer, aes(x = year, y = universal_health_coverage, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(universal_health_coverage_plot)
+```
+
+
+
+
+
+
+Target 3.9 Plots - Mortality rate attributed to unintentional poisonings. 
+
+
+
+```{r}
+
+
+unintentional_poisonings_mortality_rate_longer <- unintentional_poisonings_mortality_rate %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "unintentional_poisonings_mortality_rate") %>% 
+  clean_names()
+```
+
+
+```{r}
+unintentional_poisonings_mortality_rate_longer[unintentional_poisonings_mortality_rate_longer == 'No Data'] <- NA
+
+unintentional_poisonings_mortality_rate_longer$unintentional_poisonings_mortality_rate <- as.numeric(unintentional_poisonings_mortality_rate_longer$unintentional_poisonings_mortality_rate)
+```
+
+
+```{r}
+unintentional_poisonings_mortality_rate_plot <- ggplot(unintentional_poisonings_mortality_rate_longer, aes(x = year, y = unintentional_poisonings_mortality_rate, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(unintentional_poisonings_mortality_rate_plot)
+```
+
+
+
+```{r}
+
+
+universal_health_coverage_longer <- universal_health_coverage %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "universal_health_coverage") %>% 
+  clean_names()
+```
+
+
+```{r}
+universal_health_coverage_longer[universal_health_coverage_longer == 'No Data'] <- NA
+
+universal_health_coverage_longer$universal_health_coverage <- as.numeric(universal_health_coverage_longer$universal_health_coverage)
+```
+
+
+```{r}
+universal_health_coverage_plot <- ggplot(universal_health_coverage_longer, aes(x = year, y = universal_health_coverage, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(universal_health_coverage_plot)
+```
+
+
+
+
+Target 3.a Plots - Age-standardized prevalence of current tobacco use among persons aged 15 years and older. 
+
+
+
+```{r}
+
+
+tobacco_use_among_15_years_and_older_longer <- tobacco_use_among_15_years_and_older %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "tobacco_use_among_15_years_and_older") %>% 
+  clean_names()
+```
+
+
+```{r}
+tobacco_use_among_15_years_and_older_longer[tobacco_use_among_15_years_and_older_longer == 'No Data'] <- NA
+
+tobacco_use_among_15_years_and_older_longer$tobacco_use_among_15_years_and_older <- as.numeric(tobacco_use_among_15_years_and_older_longer$tobacco_use_among_15_years_and_older)
+```
+
+
+```{r}
+tobacco_use_among_15_years_and_older_plot <- ggplot(tobacco_use_among_15_years_and_older_longer, aes(x = year, y = tobacco_use_among_15_years_and_older, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(tobacco_use_among_15_years_and_older_plot)
+```
+
+
+
+
+
+
+Target 3.b Plots - Proportion of the target population with access to 3 doses of diphtheria-tetanus-pertussis (DTP3), Proportion of the target population with access to affordable medicines and vaccines on a sustainable basis human papillomavirus (HPV), Proportion of the target population with access to measles-containing-vaccine second-dose (MCV2), Proportion of the target population with access to pneumococcal conjugate 3rd dose (PCV3), Total official development assistance to medical research and basic health sectors gross disbursement, Total official development assistance to medical research and basic health sectors net disbursement. 
+
+
+
+```{r}
+
+
+access_to_DPT_vaccine_longer <- access_to_DPT_vaccine %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "access_to_DPT_vaccine") %>% 
+  clean_names()
+```
+
+
+```{r}
+access_to_DPT_vaccine_longer[access_to_DPT_vaccine_longer == 'No Data'] <- NA
+
+access_to_DPT_vaccine_longer$access_to_dpt_vaccine <- as.numeric(access_to_DPT_vaccine_longer$access_to_dpt_vaccine)
+```
+
+
+```{r}
+access_to_DPT_vaccine_plot <- ggplot(access_to_DPT_vaccine_longer, aes(x = year, y = access_to_dpt_vaccine, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(access_to_DPT_vaccine_plot)
+```
+
+
+
+```{r}
+
+
+access_to_affordable_medicines_and_vaccines_HPV_longer <- access_to_affordable_medicines_and_vaccines_HPV %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "access_to_affordable_medicines_and_vaccines_HPV") %>% 
+  clean_names()
+```
+
+
+```{r}
+access_to_affordable_medicines_and_vaccines_HPV_longer[access_to_affordable_medicines_and_vaccines_HPV_longer == 'No Data'] <- NA
+
+access_to_affordable_medicines_and_vaccines_HPV_longer$access_to_affordable_medicines_and_vaccines_hpv <- as.numeric(access_to_affordable_medicines_and_vaccines_HPV_longer$access_to_affordable_medicines_and_vaccines_hpv)
+```
+
+
+```{r}
+access_to_affordable_medicines_and_vaccines_hpv_plot <- ggplot(access_to_affordable_medicines_and_vaccines_HPV_longer, aes(x = year, y = access_to_affordable_medicines_and_vaccines_hpv, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(access_to_affordable_medicines_and_vaccines_hpv_plot)
+```
+
+
+
+
+```{r}
+
+
+access_to_measles_vaccine_longer <- access_to_measles_vaccine %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "access_to_measles_vaccine") %>% 
+  clean_names()
+```
+
+
+```{r}
+access_to_measles_vaccine_longer[access_to_measles_vaccine_longer == 'No Data'] <- NA
+
+access_to_measles_vaccine_longer$access_to_measles_vaccine <- as.numeric(access_to_measles_vaccine_longer$access_to_measles_vaccine)
+```
+
+
+```{r}
+access_to_measles_vaccine_plot <- ggplot(access_to_measles_vaccine_longer, aes(x = year, y = access_to_measles_vaccine, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(access_to_measles_vaccine_plot)
+```
+
+
+
+```{r}
+
+
+access_to_pneumococcal_vaccine_longer <- access_to_pneumococcal_vaccine %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "access_to_pneumococcal_vaccine") %>% 
+  clean_names()
+```
+
+
+```{r}
+access_to_pneumococcal_vaccine_longer[access_to_pneumococcal_vaccine_longer == 'No Data'] <- NA
+
+access_to_pneumococcal_vaccine_longer$access_to_pneumococcal_vaccine <- as.numeric(access_to_pneumococcal_vaccine_longer$access_to_pneumococcal_vaccine)
+```
+
+
+```{r}
+access_to_pneumococcal_vaccine_plot <- ggplot(access_to_pneumococcal_vaccine_longer, aes(x = year, y = access_to_pneumococcal_vaccine, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(access_to_pneumococcal_vaccine_plot)
+```
+
+
+```{r}
+
+
+development_assistance_gross_disbursement_longer <- development_assistance_gross_disbursement %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "development_assistance_gross_disbursement") %>% 
+  clean_names()
+```
+
+
+```{r}
+development_assistance_gross_disbursement_longer[development_assistance_gross_disbursement_longer == 'No Data'] <- NA
+
+development_assistance_gross_disbursement_longer$development_assistance_gross_disbursement <- as.numeric(development_assistance_gross_disbursement_longer$development_assistance_gross_disbursement)
+```
+
+
+```{r}
+development_assistance_gross_disbursement_plot <- ggplot(development_assistance_gross_disbursement_longer, aes(x = year, y = development_assistance_gross_disbursement, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(development_assistance_gross_disbursement_plot)
+```
+
+
+```{r}
+
+
+development_assistance_net_disbursement_longer <- development_assistance_net_disbursement %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "development_assistance_net_disbursement") %>% 
+  clean_names()
+```
+
+
+```{r}
+development_assistance_net_disbursement_longer[development_assistance_net_disbursement_longer == 'No Data'] <- NA
+
+development_assistance_net_disbursement_longer$development_assistance_net_disbursement <- as.numeric(development_assistance_net_disbursement_longer$development_assistance_net_disbursement)
+```
+
+
+```{r}
+development_assistance_net_disbursement_plot <- ggplot(development_assistance_net_disbursement_longer, aes(x = year, y = development_assistance_net_disbursement, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(development_assistance_net_disbursement_plot)
+```
+
+
+
+
+
+Target 3.c Plots - Health worker density.
+
+
+
+```{r}
+
+
+health_worker_density_longer <- health_worker_density %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "health_worker_density") %>% 
+  clean_names()
+```
+
+
+```{r}
+health_worker_density_longer[health_worker_density_longer == 'No Data'] <- NA
+
+health_worker_density_longer$health_worker_density <- as.numeric(health_worker_density_longer$health_worker_density)
+```
+
+
+```{r}
+health_worker_density_plot <- ggplot(health_worker_density_longer, aes(x = year, y = health_worker_density, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(health_worker_density_plot)
+```
+
+
+
+
+
+Target 3.d Plots - International Health Regulations (IHR) capacity.
+
+
+
+
+```{r}
+
+
+IHR_capacity_longer <- IHR_capacity %>% 
+  mutate(across(!Year, as.character)) %>%
+  pivot_longer(cols = !Year,
+               names_to = "recipient_name",
+               values_to = "IHR_capacity") %>% 
+  clean_names()
+```
+
+
+```{r}
+IHR_capacity_longer[IHR_capacity_longer == 'No Data'] <- NA
+
+IHR_capacity_longer$ihr_capacity <- as.numeric(IHR_capacity_longer$ihr_capacity)
+```
+
+
+```{r}
+IHR_capacity_plot <- ggplot(IHR_capacity_longer, aes(x = year, y = ihr_capacity, 
+                                            color = recipient_name)) +
+  geom_line() +
+  theme_minimal()
+
+ggplotly(IHR_capacity_plot)
+```
+
+
