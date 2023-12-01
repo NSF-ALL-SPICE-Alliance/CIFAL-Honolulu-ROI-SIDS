@@ -1002,6 +1002,8 @@ Topic Disbursement over time
 # 
 # # Run the Shiny app
 # shinyApp(ui, server)
+#
+#
 ```
 
 
@@ -1051,8 +1053,8 @@ server <- function(input, output, session) {
         title = paste("Disbursement Over Time by Topic in", input$sector),
         xaxis = list(title = "Year"),
         yaxis = list(title = "Disbursement"),
-        legend = list(itemtextsize = 2)
-      )
+        legend = list(itemtextsize = 2),
+        autosize = F, width = 1200, height = 800)
     
     fig
   })
