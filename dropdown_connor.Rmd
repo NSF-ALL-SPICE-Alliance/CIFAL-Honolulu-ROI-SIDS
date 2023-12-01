@@ -3,6 +3,7 @@ title: "SIDS-Focused Analysis of the Results from 'Monitoring global development
 author: "Connor Flynn, Quinn McHenry, Katherine Gonzalez"
 date: "5/5/2023"
 output: html_document
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -245,12 +246,57 @@ topic_sector_sunburst_merged_all$path <- gsub(" - ", ",", topic_sector_sunburst_
 topic_sector_sunburst_merged_all$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged_all$path)
 ```
 
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Conflict, Peace & Security Security and anti-terrorism policies"] <- "Conflict, Peace & Security-Security and antiterrorism policies"
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Conflict, Peace & Security Peace-building and conflict resolution"] <- "Conflict, Peace & Security-Peace building and conflict resolution"
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Emergency Response Relief co-ordination and support services for emergency response"] <- "Emergency Response-Relief coordination and support services for emergency response"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Energy Biofuel-fired power plants"] <- "Energy-Biofuel fired power plants"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Energy Coal-fired electric power plants"] <- "Energy-Coal fired electric power plants"	
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Energy Hydro-electric power plants"] <- "Energy-Hydro electric power plants"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Energy Natural gas-fired electric power plants"] <- "Energy-Natural gas fired electric power plants"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Energy Oil-fired electric power plants"] <- "Energy-Oil fired electric power plants"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Environment Bio-diversity"] <- "Environment-Biodiversity"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "General Budget Support General budget support-related aid"] <- "General Budget Support-General budget support related aid"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Government & Civil Society Anti-corruption"] <- "Government & Civil Society-Anticorruption"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Health Infectious disease control (non-STD)"] <- "Health-Infectious disease control (non STD)"	
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Industry Agro-industries"] <- "Industry-Agroindustries"
+
+
+topic_sector_sunburst_merged_all[topic_sector_sunburst_merged_all == "Reconstruction Relief & Rehabilitation Immediate post-emergency reconstruction and rehabilitation"] <- "Reconstruction Relief & Rehabilitation-Immediate post emergency reconstruction and rehabilitation"
+
+```
+
+
+
+
 ```{r}
 sum(topic_sector_sunburst_merged_all$sum_disbursement)
 ```
 
 ```{r, echo=FALSE}
-p <- sunburst(topic_sector_sunburst_merged_all, legend=FALSE)
+p <- sunburst(topic_sector_sunburst_merged_all, legend=FALSE, count = TRUE)
 p
 ```
 
@@ -298,6 +344,48 @@ topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_secto
 sum(topic_sector_sunburst_merged$sum_disbursement)
 ```
 
+```{r, include=FALSE, results='hide'}
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Conflict, Peace & Security Security and anti-terrorism policies"] <- "Conflict, Peace & Security-Security and antiterrorism policies"
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Conflict, Peace & Security Peace-building and conflict resolution"] <- "Conflict, Peace & Security-Peace building and conflict resolution"
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Emergency Response Relief co-ordination and support services for emergency response"] <- "Emergency Response-Relief coordination and support services for emergency response"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Biofuel-fired power plants"] <- "Energy-Biofuel fired power plants"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Coal-fired electric power plants"] <- "Energy-Coal fired electric power plants"	
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Hydro-electric power plants"] <- "Energy-Hydro electric power plants"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Natural gas-fired electric power plants"] <- "Energy-Natural gas fired electric power plants"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Oil-fired electric power plants"] <- "Energy-Oil fired electric power plants"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Environment Bio-diversity"] <- "Environment-Biodiversity"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "General Budget Support General budget support-related aid"] <- "General Budget Support-General budget support related aid"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Government & Civil Society Anti-corruption"] <- "Government & Civil Society-Anticorruption"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Health Infectious disease control (non-STD)"] <- "Health-Infectious disease control (non STD)"	
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Industry Agro-industries"] <- "Industry-Agroindustries"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Reconstruction Relief & Rehabilitation Immediate post-emergency reconstruction and rehabilitation"] <- "Reconstruction Relief & Rehabilitation-Immediate post emergency reconstruction and rehabilitation"
+
+```
+
 
 Total Aid Distribution for all SIDS 
 - $79,391,073,760
@@ -305,9 +393,75 @@ Total Aid Distribution for all SIDS
 
 
 ```{r, echo=FALSE}
-p <- sunburst(topic_sector_sunburst_merged, legend=FALSE, width="100%", height=400)
+p <- sunburst(topic_sector_sunburst_merged, legend=FALSE, width="100%", height=400, count = TRUE)
 p
 ```
+
+
+```{r, echo=FALSE}
+# UI
+ui <- fluidPage(
+  titlePanel("Interactive Line Chart"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # Remove the country select input
+      selectInput("sector", "Select Sector", unique(activity_stats_sids$sector))
+    ),
+    
+    mainPanel(
+      # Move the plot above the input bar
+      plotlyOutput("line_chart")
+    )
+  )
+)
+
+# Server
+server <- function(input, output, session) {
+  
+  # Define a reactive expression for filtering based on sector
+  filtered_data <- reactive({
+    activity_stats_sids %>%
+      filter(sector == input$sector) %>%
+      group_by(year, topic) %>%
+      summarize(disbursement = sum(disbursement))
+  })
+  
+  output$line_chart <- renderPlotly({
+    filtered_data <- filtered_data()
+    
+    if (nrow(filtered_data) == 0) {
+      return(NULL)
+    }
+    
+    # Plotly Express is a simplified interface for creating interactive plots
+    fig <- plot_ly(
+      data = filtered_data,
+      x = ~year,
+      y = ~disbursement,
+      color = ~topic,
+      type = 'scatter',
+      mode = 'lines+markers'
+    ) %>%
+      layout(
+        title = paste("Disbursement Over Time by Topic in", input$sector),
+        xaxis = list(title = "Year"),
+        yaxis = list(title = "Disbursement"),
+        legend = list(itemtextsize = 2)
+      )
+    
+    fig
+  })
+}
+
+# Run the Shiny app
+shinyApp(ui, server)
+
+
+```
+
+
+
 
 ```{r, include=FALSE, results='hide'}
 AIS<-c('Bahrain', 'Cabo Verde', 'Comoros', 'Guinea-Bissau', 'Maldives', 'Mauritius',' Sao Tomé and Principe', 'Seychelles', 'Singapore')
@@ -565,38 +719,38 @@ sids
 ```
 ```{r, include=FALSE, results='hide'}
 # Assuming you have already loaded your dataset and have the list "sids" available
-
-# Iterate through each unique value in recipient_name
-for (s in sids) {
-  # Filter the dataset for the current SIDS
-  sids_data <- activity_stats_sids %>%
-    filter(recipient_name == s)
-  
-  # Perform the same steps as before to create the sunburst data
-  topic_sector_sunburst <- sids_data %>% 
-    group_by(topic, sector) %>% 
-    summarize(sum_disbursement = sum(disbursement))
-
-  topic_sector_sunburst_merged <- topic_sector_sunburst %>%
-    filter(sector != "") %>%
-    mutate(path = paste(sector, topic, sep="-")) %>%
-    dplyr::select(path, sum_disbursement)
-
-  topic_sector_sunburst_merged <- subset(topic_sector_sunburst_merged, select = -c(topic))
-
-  topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merged$path)
-
-  topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
-  
-  # Create the sunburst plot
-  p <- sunburst(topic_sector_sunburst_merged, legend = FALSE, width = "100%", height = 400)
-  
-  # Save the sunburst plot with the appropriate name
-  plot_name <- paste(s, "_sunburst.png", sep = "")
-  png(plot_name)
-  print(p)
-  dev.off()
-}
+# 
+# # Iterate through each unique value in recipient_name
+# for (s in sids) {
+#   # Filter the dataset for the current SIDS
+#   sids_data <- activity_stats_sids %>%
+#     filter(recipient_name == s)
+#   
+#   # Perform the same steps as before to create the sunburst data
+#   topic_sector_sunburst <- sids_data %>% 
+#     group_by(topic, sector) %>% 
+#     summarize(sum_disbursement = sum(disbursement))
+# 
+#   topic_sector_sunburst_merged <- topic_sector_sunburst %>%
+#     filter(sector != "") %>%
+#     mutate(path = paste(sector, topic, sep="-")) %>%
+#     dplyr::select(path, sum_disbursement)
+# 
+#   topic_sector_sunburst_merged <- subset(topic_sector_sunburst_merged, select = -c(topic))
+# 
+#   topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merged$path)
+# 
+#   topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
+#   
+#   # Create the sunburst plot
+#   p <- sunburst(topic_sector_sunburst_merged, legend = FALSE, width = "100%", height = 400)
+#   
+#   # Save the sunburst plot with the appropriate name
+#   plot_name <- paste(s, "_sunburst.png", sep = "")
+#   png(plot_name)
+#   print(p)
+#   dev.off()
+# }
 
 ```
 
@@ -628,8 +782,47 @@ for (s in sids) {
 
   topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
   
+  topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Conflict, Peace & Security Security and anti-terrorism policies"] <- "Conflict, Peace & Security-Security and antiterrorism policies"
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Conflict, Peace & Security Peace-building and conflict resolution"] <- "Conflict, Peace & Security-Peace building and conflict resolution"
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Emergency Response Relief co-ordination and support services for emergency response"] <- "Emergency Response-Relief coordination and support services for emergency response"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Biofuel-fired power plants"] <- "Energy-Biofuel fired power plants"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Coal-fired electric power plants"] <- "Energy-Coal fired electric power plants"	
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Hydro-electric power plants"] <- "Energy-Hydro electric power plants"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Natural gas-fired electric power plants"] <- "Energy-Natural gas fired electric power plants"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Energy Oil-fired electric power plants"] <- "Energy-Oil fired electric power plants"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Environment Bio-diversity"] <- "Environment-Biodiversity"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "General Budget Support General budget support-related aid"] <- "General Budget Support-General budget support related aid"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Government & Civil Society Anti-corruption"] <- "Government & Civil Society-Anticorruption"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Health Infectious disease control (non-STD)"] <- "Health-Infectious disease control (non STD)"	
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Industry Agro-industries"] <- "Industry-Agroindustries"
+
+
+topic_sector_sunburst_merged[topic_sector_sunburst_merged == "Reconstruction Relief & Rehabilitation Immediate post-emergency reconstruction and rehabilitation"] <- "Reconstruction Relief & Rehabilitation-Immediate post emergency reconstruction and rehabilitation"
+  
   # Create the sunburst plot
-  p <- sunburst(topic_sector_sunburst_merged, legend = TRUE, width = "100%", height = 400)
+  p <- sunburst(topic_sector_sunburst_merged, legend = TRUE, width = "100%", height = 400, count = TRUE)
   
   # Save the sunburst plot in the list with the appropriate name
   sunburst_plots[[s]] <- p
@@ -753,16 +946,73 @@ shinyApp(ui, server)
 Topic Disbursement over time
 
 
-```{r}
-# UI
+```{r, echo=FALSE}
+# # UI
+# ui <- fluidPage(
+#   titlePanel("Interactive Line Chart"),
+#   
+#   sidebarLayout(
+#     sidebarPanel(
+#       selectInput("country", "Select Country", unique(activity_stats_sids$recipient_name)),
+#       selectInput("sector", "Select Sector", unique(activity_stats_sids$sector)),
+#       selectInput("topic", "Select Topic", NULL)  # Initialize with NULL options
+#     ),
+#     
+#     mainPanel(
+#       plotlyOutput("line_chart")
+#     )
+#   )
+# )
+# 
+# # Server
+# server <- function(input, output, session) {  # Added 'session' argument
+#   
+#   # Define a reactive expression for filtering based on sector
+#   filtered_data <- reactive({
+#     activity_stats_sids %>%
+#       filter(recipient_name == input$country,
+#              sector == input$sector,
+#              topic == input$topic)
+#   })
+#   
+#   # Observe changes in the 'sector' input and update the 'topic' dropdown accordingly
+#   observe({
+#     topics_for_sector <- unique(activity_stats_sids$topic[activity_stats_sids$sector == input$sector])
+#     updateSelectInput(session, "topic", choices = topics_for_sector)
+#   })
+#   
+#   output$line_chart <- renderPlotly({
+#     filtered_data <- filtered_data()
+#     
+#     if (nrow(filtered_data) == 0) {
+#       return(NULL)
+#     }
+#     
+#     ggplot(filtered_data, aes(x = year, y = disbursement, color = topic)) +
+#       geom_line() +
+#       labs(title = paste("Disbursement for", input$topic, "in", input$sector),
+#            x = "Year",
+#            y = "Disbursement",
+#            color = "Topic") +
+#       theme_minimal()
+#   })
+# }
+# 
+# 
+# 
+# # Run the Shiny app
+# shinyApp(ui, server)
+```
+
+
+```{r, echo=FALSE}
 ui <- fluidPage(
   titlePanel("Interactive Line Chart"),
   
   sidebarLayout(
     sidebarPanel(
       selectInput("country", "Select Country", unique(activity_stats_sids$recipient_name)),
-      selectInput("sector", "Select Sector", unique(activity_stats_sids$sector)),
-      selectInput("topic", "Select Topic", NULL)  # Initialize with NULL options
+      selectInput("sector", "Select Sector", unique(activity_stats_sids$sector))
     ),
     
     mainPanel(
@@ -772,20 +1022,13 @@ ui <- fluidPage(
 )
 
 # Server
-server <- function(input, output, session) {  # Added 'session' argument
+server <- function(input, output, session) {
   
-  # Define a reactive expression for filtering based on sector
+  # Define a reactive expression for filtering based on country and sector
   filtered_data <- reactive({
     activity_stats_sids %>%
       filter(recipient_name == input$country,
-             sector == input$sector,
-             topic == input$topic)
-  })
-  
-  # Observe changes in the 'sector' input and update the 'topic' dropdown accordingly
-  observe({
-    topics_for_sector <- unique(activity_stats_sids$topic[activity_stats_sids$sector == input$sector])
-    updateSelectInput(session, "topic", choices = topics_for_sector)
+             sector == input$sector)
   })
   
   output$line_chart <- renderPlotly({
@@ -795,20 +1038,29 @@ server <- function(input, output, session) {  # Added 'session' argument
       return(NULL)
     }
     
-    ggplot(filtered_data, aes(x = year, y = disbursement, color = topic)) +
-      geom_line() +
-      labs(title = paste("Disbursement for", input$topic, "in", input$sector),
-           x = "Year",
-           y = "Disbursement",
-           color = "Topic") +
-      theme_minimal()
+    # Plotly Express is a simplified interface for creating interactive plots
+    fig <- plot_ly(
+      data = filtered_data,
+      x = ~year,
+      y = ~disbursement,
+      color = ~topic,
+      type = 'scatter',
+      mode = 'lines+markers'
+    ) %>%
+      layout(
+        title = paste("Disbursement Over Time by Topic in", input$sector),
+        xaxis = list(title = "Year"),
+        yaxis = list(title = "Disbursement"),
+        legend = list(itemtextsize = 2)
+      )
+    
+    fig
   })
 }
 
-
-
 # Run the Shiny app
 shinyApp(ui, server)
+
 ```
 
 

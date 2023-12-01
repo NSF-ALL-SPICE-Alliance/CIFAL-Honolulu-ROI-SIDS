@@ -271,7 +271,7 @@ print(correlations)
 ```
 ```{r}
 energy_aid_indicators_renewable_watts_relevant_topics_grouped_country <- energy_aid_indicators_renewable_watts_relevant_topics_grouped %>% 
-  filter(recipient_name == "Cabo Verde")  
+  filter(recipient_name == "Mauritius")  
   
 ggplot(energy_aid_indicators_renewable_watts_relevant_topics_grouped_country, aes(x = year, y = renewable_disbursement)) +
   geom_line()+
@@ -358,7 +358,7 @@ lag2.plot(aid_ts, watts_ts, max.lag = 15)
 
 ```{r}
 energy_aid_tonga <- energy_aid_indicators_renewable_watts_relevant_topics_grouped %>% 
-  filter(recipient_name == "Cabo Verde")  %>% 
+  filter(recipient_name == "Mauritius")  %>% 
   drop_na()
 
 aid_ts_tonga <- ts(energy_aid_tonga$renewable_disbursement)
@@ -522,6 +522,21 @@ ggplot(all_sids_aid_watts_unstandardized, aes(x = sum_watts, y = sum_aid, color 
   
 
 ```
+
+
+```{r}
+aid_ts_unstandardized <- ts(all_sids_aid_watts_unstandardized$sum_aid)
+watts_ts_unstandardized <- ts(all_sids_aid_watts_unstandardized$sum_watts)
+
+
+lag2.plot(aid_ts_unstandardized, watts_ts_unstandardized, max.lag = 15)
+```
+
+
+
+
+
+
 
 For Andrew:
 
