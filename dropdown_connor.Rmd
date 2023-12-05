@@ -170,7 +170,7 @@ total_disbursments_by_sids_sector <- total_disbursments_by_sids_sector %>%
 tile_plot <- ggplot(total_disbursments_by_sids_sector, aes(x=Sector , y= RecipientName,
                                               fill = percentage)) +
   geom_tile() +
-  labs(title = "Percentage of Budget allocated to each Sector by SIDS", y = "SIDS", x = "Sector", fill = "percentage of total aid") +
+  labs(title = "Percentage of Aid allocated to each Sector by SIDS", y = "SIDS", x = "Sector", fill = "percentage of total aid") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, size = 4, hjust = 1),
         axis.text.y = element_text(size = 3, hjust = 1)) +
