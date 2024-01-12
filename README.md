@@ -1,7 +1,7 @@
 # Welcome
 
 
-<img src="logos/SpiceLogo1.png" width="240" /> <img src="logos/cifal_logo.png" width="200" />
+<img src="SpiceLogo1.png" width="240" /> <img src="cifal_logo.png" width="200" />
 
 
 ### Overview
