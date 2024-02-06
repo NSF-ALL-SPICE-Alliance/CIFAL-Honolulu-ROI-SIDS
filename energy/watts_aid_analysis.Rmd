@@ -358,7 +358,7 @@ lag2.plot(aid_ts, watts_ts, max.lag = 15)
 
 ```{r}
 energy_aid <- energy_aid_indicators_renewable_watts_relevant_topics_grouped %>% 
-  filter(recipient_name == "Fiji")  %>% 
+  filter(recipient_name == "Mauritius")  %>% 
   drop_na()
 
 aid_ts <- ts(energy_aid$renewable_disbursement)
