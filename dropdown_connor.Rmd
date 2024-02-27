@@ -20,9 +20,9 @@ options(scipen = 99)
 ```
 
 
-![](/Users/connorflynn/Documents/SDG/SIDS_SDG_UNSTATS/visualizations/cifal_logo.png){width=150} 
+<img src="cifal_logo.png" width="200" />
 
-![](/Users/connorflynn/Downloads/SpiceLogo1.png){width=150} 
+<img src="SpiceLogo1.png" width="240" />
 
 The data source of this work is the results from the paper [Monitoring global development aid with machine learning](https://www.nature.com/articles/s41893-022-00874-z) specifically sourced from their [Github](https://github.com/MalteToetzke/Monitoring-Global-Development-Aid-With-Machine-Learning/tree/main/Data)
 
@@ -141,10 +141,6 @@ plot <- ggplot(total_disbursments_by_sids_sector, aes(x = disbursement,
 plot
 ```
 
-
-```{r}
-#write_csv("")
-```
 
 Below, we visualize total disbursements of aid by sector for each SIDS. 
 
@@ -628,31 +624,6 @@ div(
 
 
 
-```{r, include=FALSE, results='hide'}
-# ui <- fluidPage(
-#   selectInput("chart_selector", "Select Chart:", choices = c("Caribbean", "Pacific", "AIS")), 
-#   uiOutput("selected_chart")
-# )
-```
-
-```{r, include=FALSE, results='hide'}
-# server <- function(input, output) {
-#   output$selected_chart <- renderUI({
-#     if (input$chart_selector == "Caribbean") {
-#       car
-#     } else if (input$chart_selector == "Pacific") {
-#       pac
-#     } else if (input$chart_selector == "AIS") {
-#       AIS
-#     }
-# 
-#   })
-# }
-```
-
-```{r, include=FALSE, results='hide'}
-# shinyApp(ui = ui, server = server)
-```
 
 
 ```{r, include=FALSE, results='hide'}
@@ -676,35 +647,9 @@ countries_list <- unique(country_disbursements$RecipientName)
 country_disbursements_charts <- list()
 ```
 
-```{r, include=FALSE, results='hide'}
-# for (RecipientName in countries_list) {
-#   select 
-#   country_table <- country_disbursements[country_disbursements$RecipientName == i, ]
-# 
-#   sunburst_data <- with(
-#     country_table,
-#     data.frame(
-#       name = paste(RecipientName, Sector, topic, sep = "|"),
-#       parent = paste(RecipientName, Sector, sep = "|"),
-#       value = disbursement
-#     )
-#   )
-#      sunburst_chart <- sunburst(country_table, labels = c(Sector, topic), values = disbursement)
-#       sunburst_charts[[RecipientName]] <- sunburst_chart
-# }
-```
 
 ```{r, include=FALSE, results='hide'}
 unique(countries_list)
-```
-
-
-
-```{r, include=FALSE, results='hide'}
-# country_disbursements_merged <- country_disbursements %>%
-#   filter(Sector != "") %>%
-#   mutate(path = paste(Sector, topic, sep="-")) %>%
-#   dplyr::select(path, disbursement, RecipientName)
 ```
 
 
@@ -717,42 +662,7 @@ activity_stats_sids
 ```{r, include=FALSE, results='hide'}
 sids
 ```
-```{r, include=FALSE, results='hide'}
-# Assuming you have already loaded your dataset and have the list "sids" available
-# 
-# # Iterate through each unique value in recipient_name
-# for (s in sids) {
-#   # Filter the dataset for the current SIDS
-#   sids_data <- activity_stats_sids %>%
-#     filter(recipient_name == s)
-#   
-#   # Perform the same steps as before to create the sunburst data
-#   topic_sector_sunburst <- sids_data %>% 
-#     group_by(topic, sector) %>% 
-#     summarize(sum_disbursement = sum(disbursement))
-# 
-#   topic_sector_sunburst_merged <- topic_sector_sunburst %>%
-#     filter(sector != "") %>%
-#     mutate(path = paste(sector, topic, sep="-")) %>%
-#     dplyr::select(path, sum_disbursement)
-# 
-#   topic_sector_sunburst_merged <- subset(topic_sector_sunburst_merged, select = -c(topic))
-# 
-#   topic_sector_sunburst_merged$path <- gsub(" - ", ",", topic_sector_sunburst_merged$path)
-# 
-#   topic_sector_sunburst_merged$path <- gsub("^(.+)-(.+)-", "\\1 \\2-", topic_sector_sunburst_merged$path)
-#   
-#   # Create the sunburst plot
-#   p <- sunburst(topic_sector_sunburst_merged, legend = FALSE, width = "100%", height = 400)
-#   
-#   # Save the sunburst plot with the appropriate name
-#   plot_name <- paste(s, "_sunburst.png", sep = "")
-#   png(plot_name)
-#   print(p)
-#   dev.off()
-# }
 
-```
 
 
 
@@ -946,65 +856,7 @@ shinyApp(ui, server)
 Topic Disbursement over time
 
 
-```{r, echo=FALSE}
-# # UI
-# ui <- fluidPage(
-#   titlePanel("Interactive Line Chart"),
-#   
-#   sidebarLayout(
-#     sidebarPanel(
-#       selectInput("country", "Select Country", unique(activity_stats_sids$recipient_name)),
-#       selectInput("sector", "Select Sector", unique(activity_stats_sids$sector)),
-#       selectInput("topic", "Select Topic", NULL)  # Initialize with NULL options
-#     ),
-#     
-#     mainPanel(
-#       plotlyOutput("line_chart")
-#     )
-#   )
-# )
-# 
-# # Server
-# server <- function(input, output, session) {  # Added 'session' argument
-#   
-#   # Define a reactive expression for filtering based on sector
-#   filtered_data <- reactive({
-#     activity_stats_sids %>%
-#       filter(recipient_name == input$country,
-#              sector == input$sector,
-#              topic == input$topic)
-#   })
-#   
-#   # Observe changes in the 'sector' input and update the 'topic' dropdown accordingly
-#   observe({
-#     topics_for_sector <- unique(activity_stats_sids$topic[activity_stats_sids$sector == input$sector])
-#     updateSelectInput(session, "topic", choices = topics_for_sector)
-#   })
-#   
-#   output$line_chart <- renderPlotly({
-#     filtered_data <- filtered_data()
-#     
-#     if (nrow(filtered_data) == 0) {
-#       return(NULL)
-#     }
-#     
-#     ggplot(filtered_data, aes(x = year, y = disbursement, color = topic)) +
-#       geom_line() +
-#       labs(title = paste("Disbursement for", input$topic, "in", input$sector),
-#            x = "Year",
-#            y = "Disbursement",
-#            color = "Topic") +
-#       theme_minimal()
-#   })
-# }
-# 
-# 
-# 
-# # Run the Shiny app
-# shinyApp(ui, server)
-#
-#
-```
+
 
 
 ```{r, echo=FALSE}
