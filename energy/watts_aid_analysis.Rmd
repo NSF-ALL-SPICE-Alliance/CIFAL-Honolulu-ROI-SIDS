@@ -534,7 +534,82 @@ lag2.plot(aid_ts_unstandardized, watts_ts_unstandardized, max.lag = 15)
 
 
 
+```{r}
+#all_sids_aid_watts_unstandardized
+```
 
+
+```{r}
+# Build dummy data
+data <- data.frame(
+  day = as.Date("2019-01-01") + 0:99,
+  temperature = runif(100) + seq(1,100)^2.5 / 10000,
+  price = runif(100) + seq(100,1)^1.5 / 10
+)
+
+# Value used to transform the data
+coeff <- 10
+
+# A few constants
+temperatureColor <- "#69b3a2"
+priceColor <- rgb(0.2, 0.6, 0.9, 1)
+
+ggplot(head(data, 80), aes(x=day)) +
+  
+  geom_bar( aes(y=temperature), stat="identity", size=.1, fill=temperatureColor, color="black", alpha=.4) + 
+  geom_line( aes(y=price / coeff), size=2, color=priceColor) +
+  
+  scale_y_continuous(
+    
+    # Features of the first axis
+    name = "Temperature (Celsius °)",
+    
+    # Add a second axis and specify its features
+    sec.axis = sec_axis(~.*coeff, name="Price ($)")
+  ) + 
+  
+  theme_ipsum() +
+
+  theme(
+    axis.title.y = element_text(color = temperatureColor, size=13),
+    axis.title.y.right = element_text(color = priceColor, size=13)
+  ) +
+
+  ggtitle("Temperature down, price up")
+```
+
+```{r}
+
+# Value used to transform the data
+coeff <- 10
+
+# A few constants
+temperatureColor <- "#69b3a2"
+priceColor <- rgb(0.2, 0.6, 0.9, 1)
+
+ggplot(all_sids_aid_watts_unstandardized, aes(x=year)) +
+  
+  geom_bar(aes(y=sum_aid), stat="identity", size=.1, fill=temperatureColor, color="black", alpha=.4) + 
+  geom_line( aes(y=sum_watts / coeff), size=2, color=priceColor) +
+  
+  scale_y_continuous(
+    
+    # Features of the first axis
+    name = "Aid",
+    
+    # Add a second axis and specify its features
+    sec.axis = sec_axis(~.*coeff, name="Watts")
+  ) + 
+  
+  theme_ipsum() +
+
+  theme(
+    axis.title.y = element_text(color = temperatureColor, size=13),
+    axis.title.y.right = element_text(color = priceColor, size=13)
+  ) +
+
+  ggtitle("Aid and Energy")
+```
 
 
 
