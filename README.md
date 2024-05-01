@@ -13,6 +13,17 @@ This research utilizes data from the publication [*Monitoring Global Development
 3. Explore the complex relationship between these granular descriptions of funding and sdg indicators at the country level
 
 
+### Products
+
+
+![sunburst_gif](https://github.com/NSF-ALL-SPICE-Alliance/CIFAL-Honolulu-ROI-SIDS/assets/76076246/e266f6aa-3b08-4f68-bd58-2a645d54b158)
+
+
+
+- Interactive visualizations describing aid, like the one above, are currently being input into a Shiny App
+
+
+
 **Students**
 
 [Quinn McHenry](https://github.com/QuinnMcHenry)
