@@ -1,0 +1,385 @@
+---
+title: "ShinyApp"
+author: "quinn mchenry"
+date: "2024-02-26"
+output: html_document
+---
+shinyie
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(plotly)
+library(ggplot2)
+library(sunburstR)
+library(shinyjs)
+library(shinylive)
+library(httpuv)
+```
+
+glow text :  text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "Directory"),
+  dashboardSidebar(collapsed = TRUE, 
+    sidebarMenu(
+      menuItem("SIDS Overview - Totals", tabName = "page1"),
+      menuItem("By-Country Analysis", tabName = "page2")
+# Add more menu items for additional pages if needed
+      
+    )
+  ),
+   dashboardBody(
+    tabItems(
+      tabItem(tabName = "page1",
+              fluidPage(
+                useShinyjs(),
+                tags$head(
+                  tags$style(
+                    HTML("
+                      body {
+                        padding: 0px !important;
+                        margin: 0px !important;
+                        background-color: #000000;
+                        color: #ffffff;
+                      }
+                      .box {
+                        border: none !important;
+                      }
+                      .logo-image img {
+                        background-color: white;
+                      }
+                      .skin-blue .main-header .logo {
+                        background-color: #0c1724;
+                      }
+                      .skin-blue .main-header .logo:hover {
+                        background-color: #0c1724;
+                      }
+                      .skin-blue .main-header .navbar {
+                        background-color: #0c1724;
+                      }
+                      .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+                        background-color: #609af7;
+                      }
+                      .content-wrapper {
+                        background-color: #000000 !important;
+                         margin-bottom: 0 !important;
+                      }
+                      .skin-blue .main-sidebar {
+                      background-color:  #0c1724 !important;
+                      }
+                      .custom-paragraph {
+                      background-color: #0c1724;
+                      padding: 10px;
+                      border-radius: 5px;
+                      border-style : inset;
+                      }
+                      .title-text {
+                      font-size : 42px;
+                      font-weight : bold;
+                      }
+                    ")
+                   )
+                 ),
+
+  #  un-comment classes to add white background for logos
+  
+   fluidRow(
+     column(3, #class = "logo-image",
+      div(style = "display: flex; justify-content: center; align-items: flex-start;"), imageOutput("cifalLogo"),
+      style = "position: absolute; top: 0; left: 0; padding-top: 60px; padding-right: 50px; margin-left : 0px"),
+     
+      column(3, #class = "logo-image",
+            div(style = "display: flex; justify-content: center; align-items: flex-start;"), imageOutput("chamseal"),
+            style = "position: absolute; top: 75px; left: 450px; padding-top: 60px; margin-bottom : 100px;"),
+               
+     column(3, #class = "logo-image",
+       div(style = "display: flex; justify-content: center; align-items: flex-start;"), imageOutput("spiceLogo"),
+      style = "position: absolute; top: 150px; left: 0; padding-top: 60px; padding-right: 50px; margin-bottom : 0px;"),
+     
+     column(12, class = "text-center",
+           h1("SIDS Data Analysis", style = "margin-top: 300px; text-decoration: underline;", class = "title-text"),
+           p(HTML("<b>Connor Flynn, Quinn McHenry, Katherine Gonzalez.</b><br><br>
+             These are a collection of visualizations intended to explain disbursement and aid effectiveness<br> in pacific island nations. Many plots are interactive, hover to explore! <br><br> Data gathered from:<br> <a href='https://www.nature.com/articles/s41893-022-00874-z'>Monitoring Global Development Aid with Machine Learning</a> <br>
+             <a href = 'https://github.com/MalteToetzke/Monitoring-Global-Development-Aid-With-Machine-Learning'>Github</a>"),
+             style = "margin-top : 0px; margin-bottom : 100px;", class = "custom-paragraph")
+
+  )
+),
+
+
+  fluidRow(
+    column(12, h2("SIDS Budget Sunburst", style = "text-decoration: underline;", class = "custom-paragraph"), sunburstOutput("sunburstPlot1", width = "100%")),
+    style = "margin-bottom : 100px, margin-top : 50px"),
+    column(12,
+           p(sunburst_text1, style = "margin-top : 40px;", class = "custom-paragraph")
+  ),
+
+  fluidRow(
+    column(6, 
+           h2("Disbursement Saturation", style = "text-decoration: underline;", class = "custom-paragraph"), plotlyOutput("tilePlot1", width = "100%", height = "120%"), id = "tile-plot-header"),
+    column(6, 
+           h2("Disbursement Comparison", style = "margin-left: 150px; text-decoration: underline;", class = "custom-paragraph"), plotlyOutput("barchart1", width = "120%", height = "110%"),  id = "barchart-header", style = "margin-left: -150px;"),
+    column(12,
+           p(tile_and_map_text1, style = "margin-top : 30px;", class = "custom-paragraph"))
+  ),
+
+  fluidRow(
+    column(12, h2("Disbursement Over Time", style = "text-decoration: underline;", class = "custom-paragraph"), plotlyOutput("areaMap1", width = "100%"), id = "area-map-header"),
+    column(12, 
+           p(areamap_text, style = "margin-top : 30px; margin-bottom : 50px;", class = "custom-paragraph"))
+    )
+   )
+  ),
+
+
+### PAGE 2 ###
+
+
+  tabItem(tabName = "page2",
+              fluidPage(
+                useShinyjs(),
+                fluidRow(
+                  column(12, h2("Disbursement by Country", style = "text-decoration: underline; margin-bottom : 50px;", class = "custom-paragraph"),
+                         selectInput("country_selector", "Select Country:", choices = sids), 
+                         uiOutput("selected_sunburst"),
+                         style = "margin-bottom : 100px, margin-top : 50px",
+                  column(12,
+                         uiOutput("sunburstselecttext", class = "custom-paragraph"),
+                         id = "sunburstselecttext"),
+                         style = "color : white; margin-top : 50px; margin-bottom : 100px;"
+                  )),
+                 
+                  
+                
+                fluidRow(
+                  column(12, h2("Area Plot: Disbursement Over Time", style = "text-decoration: underline; margin-bottom : 50px;", class = "custom-paragraph"),
+                         selectInput("country", "Select Country:", 
+                                     unique(activity_clusters_sids_country_sector_year$RecipientName)), 
+                         plotlyOutput("line_plot"),
+                         style = "margin-bottom : 100px, margin-top : 50px"),
+                  column(12,
+                         uiOutput("lineplotselecttext", class = "custom-paragraph"),
+                         id = "lineplotselecttext",
+                         style = "color : white; margin-top : 50px; margin-bottom : 100px;"
+                
+                  )
+                ),
+                
+                fluidRow(
+                  column(12, h2("Line Chart", style = "text-decoration: underline; margin-bottom : 50px;", class = "custom-paragraph"),
+                         selectInput("country", "Select Country", unique(activity_stats_sids$recipient_name)),
+                         selectInput("sector", "Select Sector", unique(activity_stats_sids$sector)),
+                         plotlyOutput("line_chart"),
+                         style = "margin-bottom : 100px;, margin-top : 50px;"),
+                  column(12,
+                         uiOutput("line_chart_text", class = "custom-paragraph"),
+                         id = "line_chart_text",
+                         style = "color : white; margin-top : 50px; margin-bottom : 100px;"
+                  )
+    ),
+    
+
+  )
+)
+          
+
+
+)))
+
+  
+                
+              
+
+
+
+#paper_bgcolor: "rgba(0,0,0,0", //background color of the chart container space
+#plot_bgcolor: "rgba(0,0,0,0)", //background color of plot area
+
+sunburst_text1 <- HTML("This sunburst chart visulizes the disbursement of aid for all SIDS. Each section of the inner ring of the chart represents a different topic, and each attached section of the outer ring represents the sectors within that topic. Hover to view those topics/sectors and the real value of the disbursement compared to the total. Please note that this plot represents the sum total of disbursement of all countries, for all topics and sectors, combined.")
+
+tile_and_map_text1 <- HTML("These plots illustrate different aspects of aid disbursement. On the left, the tile plot visualizes saturation of aid in certain sectors. A darker colored region on the plot indicates a higher percentage of that country's disbursement was directed towards that sector. For example, the dark red region in the lower left of the plot can be hovered over to reveal that Bahrain directed ~70% of their total aid towards education. The bar chart on the right presents the total disbursement for each country and it's division among those countries' sectors, yet also compares the total disbursment between each country, which allows us to see which SID recieved the most aid total. For example, Haiti recieved more aid than any other SID, and most of that aid was spent on disaster response.")
+
+areamap_text <- HTML("This area map displays the total disbursment for each country for each sector over time. It is interesting to note how the disbursement of aid changed for certain sectors as the years pass by. Hover on any area of the graph to see the sector, country name, and year. ")
+
+lineplotselecttext <- HTML("This line plot illustrates the relationship between the selected country's aid value and its' disbursement to various sectors as time progresses. It is identical in structure and function to the plot from the previous page, except that it allows for more detailed analysis through the dropdown menu. Select from the menu to generate a plot of the disbursement over time for the selected country.")
+
+sunburstselecttext <- HTML("This sunburst chart is identical in structure and function to the first one, except that it allows for country-specific analysis via a dropdown menu. Select from the menu to generate a disbursment sunburst for a given country.")
+
+line_chart_text <- HTML("This line chart allows us to specify the parts of the data we want to anaylze even further. Select a country, and a topic to visualize the disbursement towards that country's sectors under a given topic, over time. Utilize the legend to understand which sectors are being displayed for a given country and topic. Hover on a point to view year and disbursement value in millions USD.")
+
+
+
+server <- function(input, output) {
+
+  ## Text Outputs ##
+   observe({
+    runjs('$("#tile-plot-header").css("margin-top", "100px");')
+     runjs('$("#sunburst-text1").css("margin-top",  "100px");')
+     runjs('$("#tile-and-map-text1").css("margin-top", "100px");')
+     runjs('$("#area-map-header").css("margin-top", "100px");')
+     runjs('$("#barchart-header").css("margin-top", "100px");')
+     runjs('$("#lineplotselecttext").css("margin-top", "100px");')
+     runjs('$("#sunburstselecttext").css("margin-top", "100px");')
+     runjs('$("#line-chart-select-text").css("margin-top", "100px");')
+  })
+  
+  
+  ## Image Outputs ##
+  output$cifalLogo <- renderImage({
+    list(src = "cifal_logo.png", width = "350px", height = "120px", alt = "")
+  }, deleteFile = FALSE)
+  
+  output$spiceLogo <- renderImage({
+    list(src = "SpiceLogo1.png", width = "350px", height = "110px", alt = "")
+  }, deleteFile = FALSE)
+
+   output$chamseal <- renderImage({
+    list(src = "ChaminadeSeal.png", width = "175px", height = "175px", alt = "")
+  }, deleteFile = FALSE)
+
+
+   
+     ## Plot Outputs ##
+   
+  output$sunburstPlot1 <- renderSunburst({
+    p
+  })
+  
+  
+  output$tilePlot1 <- renderPlotly({
+  tile <- ggplotly(tile)
+  tile <- tile %>% layout(
+    paper_bgcolor = 'rgba(0,0,0,0)',
+    xaxis = list(tickfont = list(color = 'white')),
+    yaxis = list(tickfont = list(color = 'white'))
+  )
+  tile
+  
+})
+  
+   output$barchart1 <- renderPlotly({
+  barchart1 <- ggplotly(barchart1)
+  barchart1 <- barchart1 %>% layout(
+    paper_bgcolor = 'rgba(0,0,0,0)',
+    legend = list(bgcolor = 'rgba(0,0,0,0)',
+                        font = list(color = 'white')),
+    xaxis = list(tickfont = list(color = 'white')),
+    yaxis = list(tickfont = list(color = 'white'))
+  )
+  barchart1
+  
+})
+  
+   output$areaMap1 <- renderPlotly({
+    stacked_aid <- ggplotly(stacked_aid)
+    stacked_aid <- stacked_aid %>% layout(
+    paper_bgcolor = 'rgba(0,0,0,0)',
+    showlegend = FALSE,
+    xaxis = list(tickfont = list(color = 'white')),
+    yaxis = list(tickfont = list(color = 'white'))
+  )
+   stacked_aid  
+   
+  })
+
+  output$sunburstText1 <- renderUI({
+    HTML(sunburst_text1)
+  })
+  
+  output$tileText1 <- renderUI({
+    HTML(tile_text1)
+  })
+  
+    output$lineplotselecttext <- renderUI({
+    HTML(lineplotselecttext)
+  })
+    
+    output$sunburstselecttext <- renderUI({
+    HTML(sunburstselecttext)
+  })
+    
+    output$line_chart_text <- renderUI({
+    HTML(line_chart_text)
+  })
+  
+  
+  
+  output$selected_sunburst <- renderUI({
+    country_name <- input$country_selector
+  
+    selected_plot <- sunburst_plots[[country_name]]
+    
+    renderSunburst(selected_plot)
+  })
+  
+  selected_data <- reactive({
+    activity_clusters_sids_country_sector_year %>%
+      filter(RecipientName == input$country)
+  })
+  
+ 
+  output$line_plot <- renderPlotly({
+    ggplot(selected_data(), aes(x = Year, y = disbursement, fill = Sector)) +
+      geom_area() +
+      labs(title = "Disbursement by Sector Over Time",
+           x = "Year",
+           y = "Disbursement",
+           color = "Sector") +
+      theme_minimal()
+  })
+  
+  filtered_data <- reactive({
+    activity_stats_sids %>%
+      filter(recipient_name == input$country,
+             sector == input$sector)
+  })
+  
+  output$line_chart <- renderPlotly({
+    filtered_data <- filtered_data()
+    
+    if (nrow(filtered_data) == 0) {
+      return(NULL)
+    }
+    
+    fig <- plot_ly(
+      data = filtered_data,
+      x = ~year,
+      y = ~disbursement,
+      color = ~topic,
+      type = 'scatter',
+      mode = 'lines+markers'
+    ) %>%
+      layout(
+        title = paste("Disbursement Over Time by Topic in", input$sector),
+        xaxis = list(title = "Year"),
+        yaxis = list(title = "Disbursement"),
+        legend = list(itemtextsize = 2),
+        width = 1400, height = 500)
+    
+    fig
+  })
+  
+
+}
+
+
+shinyApp(ui = ui, server = server)
+```
+
+h
+
+
+
+
+
+
+
+
+
+hosting/github pages?
